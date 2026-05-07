@@ -5,6 +5,8 @@ import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Menu, X, Brain, Sparkles } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import Image from "next/image";
+import logo from "../../../public/icon.png";
 
 export const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -37,9 +39,7 @@ export const Navbar = () => {
       <div className="container mx-auto px-4 md:px-8 max-w-7xl">
         <nav className="flex items-center justify-between">
           <Link href="/" className="flex items-center gap-2 group">
-            <div className="w-10 h-10 bg-linear-to-br from-blue-600 to-indigo-700 rounded-xl flex items-center justify-center text-white shadow-lg shadow-blue-500/20 group-hover:scale-110 transition-transform">
-              <Brain className="w-6 h-6" />
-            </div>
+            <Image src={logo} alt="StudyMind AI Logo" className="w-8 h-8" />
             <span className="font-bold text-xl tracking-tight text-slate-900 dark:text-white">
               StudyMind <span className="text-blue-600">AI</span>
             </span>

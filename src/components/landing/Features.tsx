@@ -92,7 +92,7 @@ export const Features = () => {
 
         <div className="grid md:grid-cols-3 gap-12 mb-32 relative">
           {/* Connector Line */}
-          <div className="hidden md:block absolute top-1/3 left-1/4 right-1/4 h-0.5 bg-gradient-to-r from-blue-200 via-indigo-200 to-teal-200 dark:from-blue-900 dark:via-indigo-900 dark:to-teal-900 -z-10" />
+          <div className="hidden md:block absolute top-1/3 left-1/4 right-1/4 h-0.5 bg-linear-to-r from-blue-200 via-indigo-200 to-teal-200 dark:from-blue-900 dark:via-indigo-900 dark:to-teal-900 -z-10" />
 
           {steps.map((step, index) => (
             <motion.div
