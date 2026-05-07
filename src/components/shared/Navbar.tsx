@@ -8,6 +8,8 @@ import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
 import logo from "../../../public/icon.png";
 
+import { ModeToggle } from "./ModeToggle";
+
 export const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
@@ -59,6 +61,7 @@ export const Navbar = () => {
               ))}
             </div>
             <div className="flex items-center gap-3 pl-6 border-l border-slate-200 dark:border-slate-800">
+              <ModeToggle />
               <Link
                 href="/login"
                 className="text-sm font-medium text-slate-600 hover:text-blue-600 dark:text-slate-300 dark:hover:text-blue-400 transition-colors px-3"
@@ -78,12 +81,15 @@ export const Navbar = () => {
           </div>
 
           {/* Mobile Menu Toggle */}
-          <button
-            className="md:hidden p-2 text-slate-600 dark:text-slate-300"
-            onClick={() => setIsOpen(!isOpen)}
-          >
-            {isOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
-          </button>
+          <div className="flex items-center gap-2 md:hidden">
+            <ModeToggle />
+            <button
+              className="p-2 text-slate-600 dark:text-slate-300"
+              onClick={() => setIsOpen(!isOpen)}
+            >
+              {isOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+            </button>
+          </div>
         </nav>
       </div>
 

@@ -1,100 +1,170 @@
 "use client";
 
-import { useState } from "react";
+import { useForm } from "@tanstack/react-form";
+import { useMutation } from "@tanstack/react-query";
 import { signIn } from "@/lib/auth-client";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { AuthLayout } from "@/components/auth/AuthLayout";
+import { Button } from "@/components/ui/button";
+
+import { z } from "zod";
+import { motion, AnimatePresence } from "framer-motion";
+import { Loader2, Mail, Lock, AlertCircle } from "lucide-react";
+
+const loginSchema = z.object({
+  email: z.string().email("Invalid email address"),
+  password: z.string().min(6, "Password must be at least 6 characters"),
+});
 
 export default function LoginPage() {
-    const [email, setEmail] = useState("");
-    const [password, setPassword] = useState("");
-    const [error, setError] = useState("");
-    const [loading, setLoading] = useState(false);
-    const router = useRouter();
+  const router = useRouter();
 
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
-        setLoading(true);
-        setError("");
+  const mutation = useMutation({
+    mutationFn: async (values: z.infer<typeof loginSchema>) => {
+      const { data, error } = await signIn.email({
+        email: values.email,
+        password: values.password,
+        callbackURL: "/dashboard",
+      });
 
-        try {
-            const { data, error: signInError } = await signIn.email({
-                email,
-                password,
-            });
+      if (error) {
+        throw new Error(error.message || "Failed to sign in");
+      }
 
-            if (signInError) {
-                setError(signInError.message || "An error occurred during sign in");
-            } else {
-                router.push("/dashboard");
-            }
-        } catch (err: any) {
-            setError(err.message || "An unexpected error occurred");
-        } finally {
-            setLoading(false);
-        }
-    };
+      return data;
+    },
+    onSuccess: () => {
+      router.push("/dashboard");
+    },
+  });
 
-    return (
-        <div className="min-h-screen flex items-center justify-center bg-zinc-950 px-4">
-            <div className="max-w-md w-full bg-zinc-900 border border-zinc-800 p-8 rounded-2xl shadow-xl">
-                <div className="text-center mb-8">
-                    <h1 className="text-3xl font-bold text-white mb-2 tracking-tight">Welcome back</h1>
-                    <p className="text-zinc-400">Sign in to your account to continue</p>
+  const form = useForm({
+    defaultValues: {
+      email: "",
+      password: "",
+    },
+
+    validators: {
+      onChange: loginSchema,
+    },
+    onSubmit: async ({ value }) => {
+      await mutation.mutateAsync(value);
+    },
+  });
+
+  return (
+    <AuthLayout
+      title="Welcome back"
+      subtitle="Master your learning journey"
+      footerText="Don't have an account?"
+      footerLinkText="Sign up"
+      footerLinkHref="/register"
+    >
+      <AnimatePresence mode="wait">
+        {mutation.isError && (
+          <motion.div
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: "auto" }}
+            exit={{ opacity: 0, height: 0 }}
+            className="mb-6 p-4 bg-destructive/10 border border-destructive/20 rounded-2xl flex items-center gap-3 text-destructive text-sm"
+          >
+            <AlertCircle className="size-4 shrink-0" />
+            <p>{mutation.error instanceof Error ? mutation.error.message : "An error occurred"}</p>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      <form
+        onSubmit={(e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          form.handleSubmit();
+        }}
+        className="space-y-6"
+      >
+        <form.Field
+          name="email"
+          children={(field) => (
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-foreground/80 ml-1">Email Address</label>
+              <div className="relative group">
+                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-muted-foreground group-focus-within:text-blue-500 transition-colors">
+                  <Mail className="size-5" />
                 </div>
-
-                {error && (
-                    <div className="mb-6 p-4 bg-red-500/10 border border-red-500/50 rounded-lg text-red-400 text-sm">
-                        {error}
-                    </div>
-                )}
-
-                <form onSubmit={handleSubmit} className="space-y-5">
-                    <div>
-                        <label className="block text-sm font-medium text-zinc-300 mb-2">Email</label>
-                        <input
-                            type="email"
-                            required
-                            value={email}
-                            onChange={(e) => setEmail(e.target.value)}
-                            className="w-full bg-zinc-800/50 border border-zinc-700 rounded-lg px-4 py-3 text-white placeholder-zinc-500 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 transition-all"
-                            placeholder="you@example.com"
-                        />
-                    </div>
-
-                    <div>
-                        <div className="flex justify-between items-center mb-2">
-                            <label className="block text-sm font-medium text-zinc-300">Password</label>
-                            <Link href="#" className="text-xs text-blue-400 hover:text-blue-300 transition-colors">
-                                Forgot password?
-                            </Link>
-                        </div>
-                        <input
-                            type="password"
-                            required
-                            value={password}
-                            onChange={(e) => setPassword(e.target.value)}
-                            className="w-full bg-zinc-800/50 border border-zinc-700 rounded-lg px-4 py-3 text-white placeholder-zinc-500 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 transition-all"
-                            placeholder="••••••••"
-                        />
-                    </div>
-
-                    <button
-                        type="submit"
-                        disabled={loading}
-                        className="w-full bg-blue-600 hover:bg-blue-500 text-white font-medium py-3 px-4 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:ring-offset-2 focus:ring-offset-zinc-900 disabled:opacity-50 disabled:cursor-not-allowed mt-2"
-                    >
-                        {loading ? "Signing in..." : "Sign In"}
-                    </button>
-                </form>
-
-                <p className="mt-8 text-center text-sm text-zinc-400">
-                    Don't have an account?{" "}
-                    <Link href="/register" className="text-blue-400 hover:text-blue-300 font-medium transition-colors">
-                        Sign up
-                    </Link>
+                <input
+                  name={field.name}
+                  value={field.state.value}
+                  onBlur={field.handleBlur}
+                  onChange={(e) => field.handleChange(e.target.value)}
+                  type="email"
+                  placeholder="name@example.com"
+                  className="w-full bg-muted/40 border border-border rounded-2xl pl-11 pr-4 py-3.5 text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500/50 transition-all backdrop-blur-sm"
+                />
+              </div>
+              {field.state.meta.isTouched && field.state.meta.errors.length > 0 && (
+                <p className="text-xs text-destructive mt-1 ml-1">
+                  {field.state.meta.errors.map((error: any) => 
+                    typeof error === 'string' ? error : error?.message || 'Invalid input'
+                  ).join(", ")}
                 </p>
+              )}
             </div>
-        </div>
-    );
+          )}
+        />
+
+        <form.Field
+          name="password"
+          children={(field) => (
+            <div className="space-y-2">
+              <div className="flex justify-between items-center mb-1 px-1">
+                <label className="text-sm font-medium text-foreground/80">Password</label>
+                <Link href="#" className="text-xs text-blue-600 dark:text-blue-400 hover:text-blue-500 dark:hover:text-blue-300 transition-colors">
+                  Forgot password?
+                </Link>
+              </div>
+              <div className="relative group">
+                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-muted-foreground group-focus-within:text-blue-500 transition-colors">
+                  <Lock className="size-5" />
+                </div>
+                <input
+                  name={field.name}
+                  value={field.state.value}
+                  onBlur={field.handleBlur}
+                  onChange={(e) => field.handleChange(e.target.value)}
+                  type="password"
+                  placeholder="••••••••"
+                  className="w-full bg-muted/40 border border-border rounded-2xl pl-11 pr-4 py-3.5 text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500/50 transition-all backdrop-blur-sm"
+                />
+              </div>
+              {field.state.meta.isTouched && field.state.meta.errors.length > 0 && (
+                <p className="text-xs text-destructive mt-1 ml-1">
+                  {field.state.meta.errors.map((error: any) => 
+                    typeof error === 'string' ? error : error?.message || 'Invalid input'
+                  ).join(", ")}
+                </p>
+              )}
+            </div>
+          )}
+        />
+
+        <form.Subscribe
+          selector={(state) => [state.canSubmit, state.isSubmitting]}
+          children={([canSubmit, isSubmitting]) => (
+            <Button
+              type="submit"
+              disabled={!canSubmit || mutation.isPending}
+              className="w-full bg-blue-600 hover:bg-blue-500 text-white font-semibold h-14 rounded-2xl shadow-lg shadow-blue-600/20 transition-all active:scale-[0.98] mt-2 group"
+            >
+              {mutation.isPending ? (
+                <Loader2 className="size-5 animate-spin mr-2" />
+              ) : null}
+              {mutation.isPending ? "Authenticating..." : "Sign In"}
+            </Button>
+          )}
+        />
+      </form>
+    </AuthLayout>
+  );
 }
+

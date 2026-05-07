@@ -106,12 +106,13 @@ export const Hero = () => {
               {topics.map((topic, index) => (
                 <motion.div
                   key={topic}
+                  initial={{ backgroundColor: "rgba(37, 99, 235, 0)" }}
                   animate={{
                     scale: activeTopicIndex === index ? 1.05 : 1,
                     backgroundColor:
                       activeTopicIndex === index
                         ? "rgba(37, 99, 235, 0.1)"
-                        : "transparent",
+                        : "rgba(37, 99, 235, 0)",
                     borderColor:
                       activeTopicIndex === index
                         ? "rgba(37, 99, 235, 0.5)"

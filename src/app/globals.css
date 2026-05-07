@@ -134,6 +134,14 @@
     animation: gradient 8s ease infinite;
   }
 
+  .glass {
+    @apply bg-zinc-900/50 backdrop-blur-xl border border-zinc-800;
+  }
+
+  .glow {
+    @apply shadow-[0_0_20px_rgba(37,99,235,0.2)];
+  }
+
   @keyframes gradient {
     0% {
       background-position: 0% 50%;

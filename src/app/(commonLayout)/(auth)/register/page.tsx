@@ -1,125 +1,221 @@
 "use client";
 
-import { useState } from "react";
+import { useForm } from "@tanstack/react-form";
+import { useMutation } from "@tanstack/react-query";
 import { signUp } from "@/lib/auth-client";
 import { useRouter } from "next/navigation";
-import Link from "next/link";
+import { AuthLayout } from "@/components/auth/AuthLayout";
+import { Button } from "@/components/ui/button";
+
+import { z } from "zod";
+import { motion, AnimatePresence } from "framer-motion";
+import { Loader2, Mail, Lock, User, AlertCircle } from "lucide-react";
+
+const registerSchema = z.object({
+  name: z.string().min(2, "Name must be at least 2 characters"),
+  email: z.string().email("Invalid email address"),
+  password: z.string().min(8, "Password must be at least 8 characters"),
+});
 
 export default function RegisterPage() {
-  const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
-  const [loading, setLoading] = useState(false);
   const router = useRouter();
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
-    setError("");
-
-    try {
-      const { data, error: signUpError } = await signUp.email({
-        email,
-        password,
-        name,
+  const mutation = useMutation({
+    mutationFn: async (values: z.infer<typeof registerSchema>) => {
+      const { data, error } = await signUp.email({
+        email: values.email,
+        password: values.password,
+        name: values.name,
+        callbackURL: "/dashboard",
       });
 
-      if (signUpError) {
-        setError(
-          signUpError.message || "An error occurred during registration",
-        );
-      } else {
-        router.push("/dashboard");
+      if (error) {
+        throw new Error(error.message || "Failed to create account");
       }
-    } catch (err: any) {
-      setError(err.message || "An unexpected error occurred");
-    } finally {
-      setLoading(false);
-    }
-  };
+
+      return data;
+    },
+    onSuccess: () => {
+      router.push("/dashboard");
+    },
+  });
+
+  const form = useForm({
+    defaultValues: {
+      name: "",
+      email: "",
+      password: "",
+    },
+
+    validators: {
+      onChange: registerSchema,
+    },
+    onSubmit: async ({ value }) => {
+      await mutation.mutateAsync(value);
+    },
+  });
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-zinc-950 px-4">
-      <div className="max-w-md w-full bg-zinc-900 border border-zinc-800 p-8 rounded-2xl shadow-xl">
-        <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-white mb-2 tracking-tight">
-            Create an account
-          </h1>
-          <p className="text-zinc-400">
-            Join StudyMind AI to supercharge your learning
-          </p>
-        </div>
-
-        {error && (
-          <div className="mb-6 p-4 bg-red-500/10 border border-red-500/50 rounded-lg text-red-400 text-sm">
-            {error}
-          </div>
+    <AuthLayout
+      title="Create account"
+      subtitle="Start your mastery today"
+      footerText="Already have an account?"
+      footerLinkText="Sign in"
+      footerLinkHref="/login"
+    >
+      <AnimatePresence mode="wait">
+        {mutation.isError && (
+          <motion.div
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: "auto" }}
+            exit={{ opacity: 0, height: 0 }}
+            className="mb-6 p-4 bg-destructive/10 border border-destructive/20 rounded-2xl flex items-center gap-3 text-destructive text-sm"
+          >
+            <AlertCircle className="size-4 shrink-0" />
+            <p>
+              {mutation.error instanceof Error
+                ? mutation.error.message
+                : "An error occurred"}
+            </p>
+          </motion.div>
         )}
+      </AnimatePresence>
 
-        <form onSubmit={handleSubmit} className="space-y-5">
-          <div>
-            <label className="block text-sm font-medium text-zinc-300 mb-2">
-              Name
-            </label>
-            <input
-              type="text"
-              required
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              className="w-full bg-zinc-800/50 border border-zinc-700 rounded-lg px-4 py-3 text-white placeholder-zinc-500 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 transition-all"
-              placeholder="John Doe"
-            />
-          </div>
+      <form
+        onSubmit={(e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          form.handleSubmit();
+        }}
+        className="space-y-5"
+      >
+        <form.Field
+          name="name"
+          children={(field) => (
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-foreground/80 ml-1">
+                Full Name
+              </label>
+              <div className="relative group">
+                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-muted-foreground group-focus-within:text-blue-500 transition-colors">
+                  <User className="size-5" />
+                </div>
+                <input
+                  name={field.name}
+                  value={field.state.value}
+                  onBlur={field.handleBlur}
+                  onChange={(e) => field.handleChange(e.target.value)}
+                  type="text"
+                  placeholder="John Doe"
+                  className="w-full bg-muted/40 border border-border rounded-2xl pl-11 pr-4 py-3.5 text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500/50 transition-all backdrop-blur-sm"
+                />
+              </div>
+              {field.state.meta.isTouched &&
+                field.state.meta.errors.length > 0 && (
+                  <p className="text-xs text-destructive mt-1 ml-1">
+                    {field.state.meta.errors
+                      .map((error: any) =>
+                        typeof error === "string"
+                          ? error
+                          : error?.message || "Invalid input",
+                      )
+                      .join(", ")}
+                  </p>
+                )}
+            </div>
+          )}
+        />
 
-          <div>
-            <label className="block text-sm font-medium text-zinc-300 mb-2">
-              Email
-            </label>
-            <input
-              type="email"
-              required
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="w-full bg-zinc-800/50 border border-zinc-700 rounded-lg px-4 py-3 text-white placeholder-zinc-500 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 transition-all"
-              placeholder="you@example.com"
-            />
-          </div>
+        <form.Field
+          name="email"
+          children={(field) => (
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-foreground/80 ml-1">
+                Email Address
+              </label>
+              <div className="relative group">
+                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-muted-foreground group-focus-within:text-blue-500 transition-colors">
+                  <Mail className="size-5" />
+                </div>
+                <input
+                  name={field.name}
+                  value={field.state.value}
+                  onBlur={field.handleBlur}
+                  onChange={(e) => field.handleChange(e.target.value)}
+                  type="email"
+                  placeholder="name@example.com"
+                  className="w-full bg-muted/40 border border-border rounded-2xl pl-11 pr-4 py-3.5 text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500/50 transition-all backdrop-blur-sm"
+                />
+              </div>
+              {field.state.meta.isTouched &&
+                field.state.meta.errors.length > 0 && (
+                  <p className="text-xs text-destructive mt-1 ml-1">
+                    {field.state.meta.errors
+                      .map((error: any) =>
+                        typeof error === "string"
+                          ? error
+                          : error?.message || "Invalid input",
+                      )
+                      .join(", ")}
+                  </p>
+                )}
+            </div>
+          )}
+        />
 
-          <div>
-            <label className="block text-sm font-medium text-zinc-300 mb-2">
-              Password
-            </label>
-            <input
-              type="password"
-              required
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="w-full bg-zinc-800/50 border border-zinc-700 rounded-lg px-4 py-3 text-white placeholder-zinc-500 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 transition-all"
-              placeholder="••••••••"
-              minLength={8}
-            />
-          </div>
+        <form.Field
+          name="password"
+          children={(field) => (
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-foreground/80 ml-1">
+                Password
+              </label>
+              <div className="relative group">
+                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-muted-foreground group-focus-within:text-blue-500 transition-colors">
+                  <Lock className="size-5" />
+                </div>
+                <input
+                  name={field.name}
+                  value={field.state.value}
+                  onBlur={field.handleBlur}
+                  onChange={(e) => field.handleChange(e.target.value)}
+                  type="password"
+                  placeholder="••••••••"
+                  className="w-full bg-muted/40 border border-border rounded-2xl pl-11 pr-4 py-3.5 text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500/50 transition-all backdrop-blur-sm"
+                />
+              </div>
+              {field.state.meta.isTouched &&
+                field.state.meta.errors.length > 0 && (
+                  <p className="text-xs text-destructive mt-1 ml-1">
+                    {field.state.meta.errors
+                      .map((error: any) =>
+                        typeof error === "string"
+                          ? error
+                          : error?.message || "Invalid input",
+                      )
+                      .join(", ")}
+                  </p>
+                )}
+            </div>
+          )}
+        />
 
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full bg-blue-600 hover:bg-blue-500 text-white font-medium py-3 px-4 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:ring-offset-2 focus:ring-offset-zinc-900 disabled:opacity-50 disabled:cursor-not-allowed mt-2"
-          >
-            {loading ? "Creating account..." : "Sign Up"}
-          </button>
-        </form>
-
-        <p className="mt-8 text-center text-sm text-zinc-400">
-          Already have an account?{" "}
-          <Link
-            href="/login"
-            className="text-blue-400 hover:text-blue-300 font-medium transition-colors"
-          >
-            Sign in
-          </Link>
-        </p>
-      </div>
-    </div>
+        <form.Subscribe
+          selector={(state) => [state.canSubmit, state.isSubmitting]}
+          children={([canSubmit, isSubmitting]) => (
+            <Button
+              type="submit"
+              disabled={!canSubmit || mutation.isPending}
+              className="w-full bg-blue-600 hover:bg-blue-500 text-white font-semibold h-14 rounded-2xl shadow-lg shadow-blue-600/20 transition-all active:scale-[0.98] mt-2 group"
+            >
+              {mutation.isPending ? (
+                <Loader2 className="size-5 animate-spin mr-2" />
+              ) : null}
+              {mutation.isPending ? "Creating account..." : "Sign Up"}
+            </Button>
+          )}
+        />
+      </form>
+    </AuthLayout>
   );
 }

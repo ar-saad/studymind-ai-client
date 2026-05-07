@@ -20,6 +20,9 @@ export const metadata: Metadata = {
   description: "Learn Anything, Master It Faster",
 };
 
+import ReactQueryProvider from "@/providers/ReactQueryProvider";
+import { ThemeProvider } from "@/providers/ThemeProvider";
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -28,6 +31,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
+      suppressHydrationWarning
       className={cn(
         "h-full",
         "antialiased",
@@ -35,10 +39,18 @@ export default function RootLayout({
         geistMono.variable,
         "font-sans",
         inter.variable,
-        inter.variable,
       )}
     >
-      <body className="min-h-full flex flex-col">{children}</body>
+      <body className="min-h-full flex flex-col" suppressHydrationWarning>
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="system"
+          enableSystem
+          disableTransitionOnChange
+        >
+          <ReactQueryProvider>{children}</ReactQueryProvider>
+        </ThemeProvider>
+      </body>
     </html>
   );
 }
