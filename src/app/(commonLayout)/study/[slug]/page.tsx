@@ -1,9 +1,10 @@
 "use client";
 
 import { useParams } from "next/navigation";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation } from "@tanstack/react-query";
 import { topicService } from "@/services/topic.service";
-import { useState } from "react";
+import { aiService } from "@/services/ai.service";
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import Link from "next/link";
 import {
@@ -11,9 +12,13 @@ import {
   BookOpen,
   Brain,
   MessageCircle,
-  Route,
-  Lock,
+  Users,
 } from "lucide-react";
+
+// Study tab components
+import StudyGuideTab from "@/components/study/StudyGuideTab";
+import QuizTab from "@/components/study/QuizTab";
+import ChatTab from "@/components/study/ChatTab";
 
 const tabs = [
   {
@@ -27,13 +32,14 @@ const tabs = [
     label: "Doubt Solver",
     icon: <MessageCircle className="w-4 h-4" />,
   },
-  { key: "path", label: "Learning Path", icon: <Route className="w-4 h-4" /> },
 ] as const;
 
 export default function StudySessionPage() {
   const { slug } = useParams<{ slug: string }>();
   const [activeTab, setActiveTab] = useState<string>("guide");
+  const [sessionCreated, setSessionCreated] = useState(false);
 
+  // Fetch topic data
   const { data, isLoading } = useQuery({
     queryKey: ["topic", slug],
     queryFn: () => topicService.getTopicBySlug(slug),
@@ -41,6 +47,35 @@ export default function StudySessionPage() {
   });
 
   const topic = data?.data;
+
+  // Create study session on page load
+  const { mutate: createSession } = useMutation({
+    mutationFn: (topicId: string) => aiService.createStudySession(topicId),
+    onSuccess: () => setSessionCreated(true),
+    onError: () => setSessionCreated(true), // Don't block the UI on error
+  });
+
+  useEffect(() => {
+    if (topic?.id && !sessionCreated) {
+      createSession(topic.id);
+    }
+  }, [topic?.id, sessionCreated, createSession]);
+
+  // Fetch related topics ("What to Study Next")
+  const { data: relatedData } = useQuery({
+    queryKey: ["related-topics", topic?.id],
+    queryFn: () =>
+      topicService.getTopics({
+        category: topic?.category,
+        limit: 4,
+        sort: "popular",
+      }),
+    enabled: !!topic?.id,
+  });
+
+  const relatedTopics = relatedData?.data?.filter(
+    (t: any) => t.id !== topic?.id
+  )?.slice(0, 4);
 
   if (isLoading) {
     return (
@@ -100,9 +135,6 @@ export default function StudySessionPage() {
             >
               {tab.icon}
               {tab.label}
-              {tab.key === "path" && (
-                <Lock className="w-3 h-3 text-amber-500" />
-              )}
             </button>
           ))}
         </div>
@@ -115,81 +147,65 @@ export default function StudySessionPage() {
           transition={{ duration: 0.2 }}
         >
           {activeTab === "guide" && (
-            <div className="bg-card border border-border rounded-xl p-6 md:p-8 min-h-100">
-              <div className="text-center py-16">
-                <BookOpen className="w-16 h-16 mx-auto text-blue-500/30 mb-4" />
-                <h3 className="text-xl font-semibold text-foreground mb-2">
-                  AI Study Guide
-                </h3>
-                <p className="text-muted-foreground mb-6 max-w-md mx-auto">
-                  Click the button below to generate an AI-powered study guide
-                  tailored to your level.
-                </p>
-                <button className="bg-blue-600 hover:bg-blue-700 text-white font-medium px-6 py-3 rounded-xl transition-colors">
-                  Generate Study Guide
-                </button>
-              </div>
-            </div>
+            <StudyGuideTab
+              topicId={topic.id}
+              topicTitle={topic.title}
+              difficulty={topic.difficulty}
+            />
           )}
 
           {activeTab === "quiz" && (
-            <div className="bg-card border border-border rounded-xl p-6 md:p-8 min-h-100">
-              <div className="text-center py-16">
-                <Brain className="w-16 h-16 mx-auto text-purple-500/30 mb-4" />
-                <h3 className="text-xl font-semibold text-foreground mb-2">
-                  Interactive Quiz
-                </h3>
-                <p className="text-muted-foreground mb-6 max-w-md mx-auto">
-                  Test your knowledge with 10 AI-generated multiple-choice
-                  questions.
-                </p>
-                <button className="bg-purple-600 hover:bg-purple-700 text-white font-medium px-6 py-3 rounded-xl transition-colors">
-                  Generate Quiz
-                </button>
-              </div>
-            </div>
+            <QuizTab
+              topicId={topic.id}
+              topicTitle={topic.title}
+              difficulty={topic.difficulty}
+            />
           )}
 
           {activeTab === "chat" && (
-            <div className="bg-card border border-border rounded-xl p-6 md:p-8 min-h-100">
-              <div className="text-center py-16">
-                <MessageCircle className="w-16 h-16 mx-auto text-emerald-500/30 mb-4" />
-                <h3 className="text-xl font-semibold text-foreground mb-2">
-                  AI Doubt Solver
-                </h3>
-                <p className="text-muted-foreground max-w-md mx-auto">
-                  Ask any question about {topic.title} and get AI-powered
-                  answers. Chat feature coming in Day 3.
-                </p>
-              </div>
-            </div>
-          )}
-
-          {activeTab === "path" && (
-            <div className="bg-card border border-border rounded-xl p-6 md:p-8 min-h-100 relative overflow-hidden">
-              <div className="absolute inset-0 bg-card/80 backdrop-blur-sm z-10 flex items-center justify-center">
-                <div className="text-center">
-                  <Lock className="w-12 h-12 mx-auto text-amber-500 mb-3" />
-                  <h3 className="text-xl font-semibold text-foreground mb-2">
-                    Pro Feature
-                  </h3>
-                  <p className="text-muted-foreground mb-4">
-                    Upgrade to Pro to access AI-generated learning paths.
-                  </p>
-                  <button className="bg-linear-to-r from-blue-600 to-purple-600 text-white font-medium px-6 py-3 rounded-xl transition-colors hover:opacity-90">
-                    Upgrade to Pro — £9.99/month
-                  </button>
-                </div>
-              </div>
-              <div className="opacity-20">
-                <Route className="w-16 h-16 mx-auto text-blue-500/30 mb-4 mt-16" />
-                <h3 className="text-xl font-semibold text-center">
-                  Learning Path
-                </h3>
-              </div>
-            </div>
+            <ChatTab
+              topicId={topic.id}
+              topicTitle={topic.title}
+              difficulty={topic.difficulty}
+            />
           )}
         </motion.div>
+
+        {/* What to Study Next Section */}
+        {relatedTopics && relatedTopics.length > 0 && (
+          <section className="mt-12">
+            <h2 className="text-xl font-bold text-foreground mb-6 flex items-center gap-2">
+              <Users className="w-5 h-5 text-blue-500" />
+              What to Study Next
+            </h2>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+              {relatedTopics.map((related: any) => (
+                <Link
+                  key={related.id}
+                  href={`/explore/${related.slug}`}
+                  className="group block"
+                >
+                  <div className="bg-card border border-border rounded-xl p-4 hover:shadow-lg hover:border-blue-500/30 transition-all h-full">
+                    <div className="flex items-center gap-2 mb-2">
+                      <span className="text-xs font-medium bg-blue-500/10 text-blue-600 dark:text-blue-400 px-2 py-0.5 rounded-full">
+                        {related.category}
+                      </span>
+                      <span className="text-xs font-medium bg-muted text-muted-foreground px-2 py-0.5 rounded-full">
+                        {related.difficulty}
+                      </span>
+                    </div>
+                    <h3 className="text-sm font-semibold text-foreground group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors line-clamp-2 mb-2">
+                      {related.title}
+                    </h3>
+                    <p className="text-xs text-muted-foreground">
+                      {related.studyCount} learners
+                    </p>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          </section>
+        )}
       </div>
     </div>
   );

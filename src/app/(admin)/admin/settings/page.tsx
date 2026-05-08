@@ -36,8 +36,8 @@ export default function AdminSettingsPage() {
         <div>
           <label className="text-sm font-medium text-muted-foreground block mb-1.5">AI Model</label>
           <select className="w-full px-4 py-2.5 bg-muted/40 border border-border rounded-lg focus:outline-none text-sm">
-            <option>gemini-1.5-flash</option>
-            <option>gemini-1.5-pro</option>
+            <option>gemini-2.5-flash</option>
+            <option>gemini-2.5-pro</option>
           </select>
         </div>
       </div>

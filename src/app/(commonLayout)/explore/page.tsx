@@ -4,7 +4,8 @@ import { useState, useEffect, useCallback, useRef } from "react";
 import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
 import { topicService, type GetTopicsParams } from "@/services/topic.service";
 import { TopicCard, TopicCardSkeleton } from "@/components/explore/TopicCard";
-import { Search, X, SlidersHorizontal, ChevronDown } from "lucide-react";
+import CreateTopicModal from "@/components/explore/CreateTopicModal";
+import { Search, X, SlidersHorizontal, ChevronDown, Plus, Sparkles } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
 const difficulties = ["Beginner", "Intermediate", "Advanced"];
@@ -21,6 +22,7 @@ export default function ExploreTopicsPage() {
   const [difficulty, setDifficulty] = useState("");
   const [sort, setSort] = useState<GetTopicsParams["sort"]>("popular");
   const [showFilters, setShowFilters] = useState(false);
+  const [showCreateModal, setShowCreateModal] = useState(false);
 
   const observerRef = useRef<IntersectionObserver | null>(null);
   const loadMoreRef = useRef<HTMLDivElement>(null);
@@ -275,8 +277,8 @@ export default function ExploreTopicsPage() {
             <p className="text-xl font-semibold text-foreground mb-2">
               No topics found
             </p>
-            <p className="text-muted-foreground">
-              Try adjusting your search or filters
+            <p className="text-muted-foreground mb-6">
+              Try adjusting your search or filters, or create a new topic.
             </p>
           </div>
         ) : (
@@ -316,7 +318,41 @@ export default function ExploreTopicsPage() {
             )}
           </>
         )}
+
+        {/* Create New Topic Card — always visible */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="mt-8"
+        >
+          <div className="bg-gradient-to-br from-blue-500/5 via-purple-500/5 to-pink-500/5 border border-dashed border-blue-500/30 rounded-2xl p-8 text-center hover:border-blue-500/50 transition-all">
+            <div className="w-14 h-14 mx-auto rounded-2xl bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center mb-4 shadow-lg shadow-blue-500/20">
+              <Plus className="w-7 h-7 text-white" />
+            </div>
+            <h3 className="text-lg font-bold text-foreground mb-2">
+              Can&apos;t find what you&apos;re looking for?
+            </h3>
+            <p className="text-muted-foreground text-sm mb-5 max-w-md mx-auto">
+              Create a new topic and the AI will build a study guide, quiz, and
+              more for it.
+            </p>
+            <button
+              onClick={() => setShowCreateModal(true)}
+              className="inline-flex items-center gap-2 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-medium px-6 py-3 rounded-xl transition-all hover:shadow-lg hover:shadow-blue-500/25 active:scale-[0.98]"
+            >
+              <Sparkles className="w-4 h-4" />
+              Create New Topic
+            </button>
+          </div>
+        </motion.div>
+
+        {/* Create Topic Modal */}
+        <CreateTopicModal
+          isOpen={showCreateModal}
+          onClose={() => setShowCreateModal(false)}
+        />
       </div>
     </div>
   );
 }
+
