@@ -44,7 +44,10 @@ export default function ProfilePage() {
       });
 
       if (error) {
-        setMessage({ text: error.message || "Failed to update profile", type: "error" });
+        setMessage({
+          text: error.message || "Failed to update profile",
+          type: "error",
+        });
       } else {
         setMessage({ text: "Profile updated successfully!", type: "success" });
         // Reload to update context
@@ -62,7 +65,9 @@ export default function ProfilePage() {
   return (
     <div className="max-w-2xl mx-auto py-8">
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-slate-900 dark:text-white">Profile Settings</h1>
+        <h1 className="text-3xl font-bold text-slate-900 dark:text-white">
+          Profile Settings
+        </h1>
         <p className="text-slate-500 dark:text-slate-400 mt-2">
           Update your personal information and profile picture.
         </p>
@@ -74,7 +79,11 @@ export default function ProfilePage() {
           <div className="flex flex-col sm:flex-row items-center gap-6">
             <div className="relative w-24 h-24 rounded-full overflow-hidden border-4 border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-800 flex items-center justify-center shrink-0">
               {image ? (
-                <img src={image} alt="Profile" className="w-full h-full object-cover" />
+                <img
+                  src={image}
+                  alt="Profile"
+                  className="w-full h-full object-cover"
+                />
               ) : (
                 <User className="w-10 h-10 text-slate-400" />
               )}
@@ -103,7 +112,9 @@ export default function ProfilePage() {
                   type="button"
                   variant="outline"
                   size="sm"
-                  onClick={() => document.getElementById("imageUpload")?.click()}
+                  onClick={() =>
+                    document.getElementById("imageUpload")?.click()
+                  }
                   className="gap-2"
                 >
                   <Upload className="w-4 h-4" />
@@ -115,7 +126,10 @@ export default function ProfilePage() {
 
           <div className="space-y-4 pt-4 border-t border-slate-100 dark:border-slate-800">
             <div className="space-y-2">
-              <label htmlFor="email" className="text-sm font-medium text-slate-700 dark:text-slate-300">
+              <label
+                htmlFor="email"
+                className="text-sm font-medium text-slate-700 dark:text-slate-300"
+              >
                 Email Address
               </label>
               <Input
@@ -125,11 +139,16 @@ export default function ProfilePage() {
                 disabled
                 className="bg-slate-50 dark:bg-slate-800 text-slate-500"
               />
-              <p className="text-xs text-slate-500">Your email address cannot be changed.</p>
+              <p className="text-xs text-slate-500">
+                Your email address cannot be changed.
+              </p>
             </div>
 
             <div className="space-y-2">
-              <label htmlFor="name" className="text-sm font-medium text-slate-700 dark:text-slate-300">
+              <label
+                htmlFor="name"
+                className="text-sm font-medium text-slate-700 dark:text-slate-300"
+              >
                 Full Name
               </label>
               <Input
@@ -156,7 +175,11 @@ export default function ProfilePage() {
           )}
 
           <div className="pt-4 flex justify-end">
-            <Button type="submit" disabled={isSaving || isUploading} className="min-w-[120px]">
+            <Button
+              type="submit"
+              disabled={isSaving || isUploading}
+              className="min-w-30"
+            >
               {isSaving ? (
                 <>
                   <Loader2 className="w-4 h-4 mr-2 animate-spin" />

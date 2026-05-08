@@ -59,9 +59,11 @@ export function Pagination({
       {/* Info text */}
       {totalItems !== undefined && (
         <p className="text-sm text-muted-foreground">
-          Showing <span className="font-medium text-foreground">{startItem}</span>–
+          Showing{" "}
+          <span className="font-medium text-foreground">{startItem}</span>–
           <span className="font-medium text-foreground">{endItem}</span> of{" "}
-          <span className="font-medium text-foreground">{totalItems}</span> results
+          <span className="font-medium text-foreground">{totalItems}</span>{" "}
+          results
         </p>
       )}
 
@@ -91,7 +93,7 @@ export function Pagination({
               variant={currentPage === page ? "default" : "outline"}
               size="sm"
               onClick={() => onPageChange(page as number)}
-              className={`rounded-lg min-w-[32px] ${
+              className={`rounded-lg min-w-8 ${
                 currentPage === page
                   ? "bg-blue-600 text-white hover:bg-blue-700 border-blue-600"
                   : ""
@@ -99,7 +101,7 @@ export function Pagination({
             >
               {page}
             </Button>
-          )
+          ),
         )}
 
         <Button

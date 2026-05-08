@@ -115,7 +115,7 @@ export default function StudySessionPage() {
           transition={{ duration: 0.2 }}
         >
           {activeTab === "guide" && (
-            <div className="bg-card border border-border rounded-xl p-6 md:p-8 min-h-[400px]">
+            <div className="bg-card border border-border rounded-xl p-6 md:p-8 min-h-100">
               <div className="text-center py-16">
                 <BookOpen className="w-16 h-16 mx-auto text-blue-500/30 mb-4" />
                 <h3 className="text-xl font-semibold text-foreground mb-2">
@@ -133,7 +133,7 @@ export default function StudySessionPage() {
           )}
 
           {activeTab === "quiz" && (
-            <div className="bg-card border border-border rounded-xl p-6 md:p-8 min-h-[400px]">
+            <div className="bg-card border border-border rounded-xl p-6 md:p-8 min-h-100">
               <div className="text-center py-16">
                 <Brain className="w-16 h-16 mx-auto text-purple-500/30 mb-4" />
                 <h3 className="text-xl font-semibold text-foreground mb-2">
@@ -151,7 +151,7 @@ export default function StudySessionPage() {
           )}
 
           {activeTab === "chat" && (
-            <div className="bg-card border border-border rounded-xl p-6 md:p-8 min-h-[400px]">
+            <div className="bg-card border border-border rounded-xl p-6 md:p-8 min-h-100">
               <div className="text-center py-16">
                 <MessageCircle className="w-16 h-16 mx-auto text-emerald-500/30 mb-4" />
                 <h3 className="text-xl font-semibold text-foreground mb-2">
@@ -166,7 +166,7 @@ export default function StudySessionPage() {
           )}
 
           {activeTab === "path" && (
-            <div className="bg-card border border-border rounded-xl p-6 md:p-8 min-h-[400px] relative overflow-hidden">
+            <div className="bg-card border border-border rounded-xl p-6 md:p-8 min-h-100 relative overflow-hidden">
               <div className="absolute inset-0 bg-card/80 backdrop-blur-sm z-10 flex items-center justify-center">
                 <div className="text-center">
                   <Lock className="w-12 h-12 mx-auto text-amber-500 mb-3" />

@@ -2,7 +2,7 @@ export default function DashboardLoading() {
   return (
     <div className="flex min-h-screen bg-background">
       {/* Sidebar skeleton */}
-      <div className="hidden lg:block w-[250px] bg-card border-r border-border animate-pulse">
+      <div className="hidden lg:block w-62.5 bg-card border-r border-border animate-pulse">
         <div className="p-4 border-b border-border">
           <div className="h-7 bg-muted rounded w-32" />
         </div>

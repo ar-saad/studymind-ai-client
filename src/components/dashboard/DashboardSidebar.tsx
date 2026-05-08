@@ -35,7 +35,11 @@ interface DashboardSidebarProps {
   };
 }
 
-export function DashboardSidebar({ links, title, user }: DashboardSidebarProps) {
+export function DashboardSidebar({
+  links,
+  title,
+  user,
+}: DashboardSidebarProps) {
   const pathname = usePathname();
   const [collapsed, setCollapsed] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -54,9 +58,7 @@ export function DashboardSidebar({ links, title, user }: DashboardSidebarProps) 
         <Link href="/" className="flex items-center gap-2">
           <Image src={logo} alt="StudyMind AI" className="w-7 h-7" />
           {!collapsed && (
-            <span className="font-bold text-lg text-foreground">
-              {title}
-            </span>
+            <span className="font-bold text-lg text-foreground">{title}</span>
           )}
         </Link>
         <button
@@ -154,7 +156,7 @@ export function DashboardSidebar({ links, title, user }: DashboardSidebarProps) 
       {/* Sidebar */}
       <aside
         className={`fixed lg:sticky top-0 left-0 z-40 h-screen bg-card border-r border-border transition-all duration-300 ${
-          collapsed ? "w-[68px]" : "w-[250px]"
+          collapsed ? "w-17" : "w-62.5"
         } ${mobileOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"}`}
       >
         {sidebarContent}
@@ -165,17 +167,74 @@ export function DashboardSidebar({ links, title, user }: DashboardSidebarProps) 
 
 // Pre-configured sidebar link sets
 export const userDashboardLinks: SidebarLink[] = [
-  { name: "Overview", href: "/dashboard", icon: <LayoutDashboard className="w-5 h-5" /> },
-  { name: "Study History", href: "/dashboard/study-history", icon: <BookOpen className="w-5 h-5" /> },
-  { name: "Quiz Results", href: "/dashboard/quiz-results", icon: <Trophy className="w-5 h-5" /> },
-  { name: "My Progress", href: "/dashboard/progress", icon: <TrendingUp className="w-5 h-5" /> },
-  { name: "Settings", href: "/dashboard/settings", icon: <Settings className="w-5 h-5" /> },
+  {
+    name: "Overview",
+    href: "/dashboard",
+    icon: <LayoutDashboard className="w-5 h-5" />,
+  },
+  {
+    name: "Study History",
+    href: "/dashboard/study-history",
+    icon: <BookOpen className="w-5 h-5" />,
+  },
+  {
+    name: "Quiz Results",
+    href: "/dashboard/quiz-results",
+    icon: <Trophy className="w-5 h-5" />,
+  },
+  {
+    name: "My Progress",
+    href: "/dashboard/progress",
+    icon: <TrendingUp className="w-5 h-5" />,
+  },
+  {
+    name: "Settings",
+    href: "/dashboard/settings",
+    icon: <Settings className="w-5 h-5" />,
+  },
 ];
 
 export const adminDashboardLinks: SidebarLink[] = [
-  { name: "Overview", href: "/admin", icon: <LayoutDashboard className="w-5 h-5" /> },
-  { name: "Users", href: "/admin/users", icon: <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg> },
-  { name: "Topic Analytics", href: "/admin/topic-analytics", icon: <TrendingUp className="w-5 h-5" /> },
-  { name: "Generation Logs", href: "/admin/generation-logs", icon: <BookOpen className="w-5 h-5" /> },
-  { name: "Settings", href: "/admin/settings", icon: <Settings className="w-5 h-5" /> },
+  {
+    name: "Overview",
+    href: "/admin",
+    icon: <LayoutDashboard className="w-5 h-5" />,
+  },
+  {
+    name: "Users",
+    href: "/admin/users",
+    icon: (
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        width="20"
+        height="20"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      >
+        <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
+        <circle cx="9" cy="7" r="4" />
+        <path d="M22 21v-2a4 4 0 0 0-3-3.87" />
+        <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+      </svg>
+    ),
+  },
+  {
+    name: "Topic Analytics",
+    href: "/admin/topic-analytics",
+    icon: <TrendingUp className="w-5 h-5" />,
+  },
+  {
+    name: "Generation Logs",
+    href: "/admin/generation-logs",
+    icon: <BookOpen className="w-5 h-5" />,
+  },
+  {
+    name: "Settings",
+    href: "/admin/settings",
+    icon: <Settings className="w-5 h-5" />,
+  },
 ];
