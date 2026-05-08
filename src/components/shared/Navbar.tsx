@@ -9,8 +9,11 @@ import Image from "next/image";
 import logo from "../../../public/icon.png";
 
 import { ModeToggle } from "./ModeToggle";
+import { ProfileDropdown } from "./ProfileDropdown";
+import { useUser } from "@/providers/UserProvider";
 
 export const Navbar = () => {
+  const { user } = useUser();
   const [isOpen, setIsOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
 
@@ -62,21 +65,27 @@ export const Navbar = () => {
             </div>
             <div className="flex items-center gap-3 pl-6 border-l border-slate-200 dark:border-slate-800">
               <ModeToggle />
-              <Link
-                href="/login"
-                className="text-sm font-medium text-slate-600 hover:text-blue-600 dark:text-slate-300 dark:hover:text-blue-400 transition-colors px-3"
-              >
-                Login
-              </Link>
-              <Button
-                asChild
-                className="bg-blue-600 hover:bg-blue-700 text-white rounded-full px-6"
-              >
-                <Link href="/register" className="flex items-center gap-2">
-                  <Sparkles className="w-4 h-4" />
-                  Sign Up Free
-                </Link>
-              </Button>
+              {user ? (
+                <ProfileDropdown />
+              ) : (
+                <>
+                  <Link
+                    href="/login"
+                    className="text-sm font-medium text-slate-600 hover:text-blue-600 dark:text-slate-300 dark:hover:text-blue-400 transition-colors px-3"
+                  >
+                    Login
+                  </Link>
+                  <Button
+                    asChild
+                    className="bg-blue-600 hover:bg-blue-700 text-white rounded-full px-6"
+                  >
+                    <Link href="/register" className="flex items-center gap-2">
+                      <Sparkles className="w-4 h-4" />
+                      Sign Up Free
+                    </Link>
+                  </Button>
+                </>
+              )}
             </div>
           </div>
 
@@ -87,7 +96,11 @@ export const Navbar = () => {
               className="p-2 text-slate-600 dark:text-slate-300"
               onClick={() => setIsOpen(!isOpen)}
             >
-              {isOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+              {isOpen ? (
+                <X className="w-6 h-6" />
+              ) : (
+                <Menu className="w-6 h-6" />
+              )}
             </button>
           </div>
         </nav>
@@ -115,21 +128,29 @@ export const Navbar = () => {
               ))}
               <hr className="border-slate-100 dark:border-slate-800" />
               <div className="flex flex-col gap-3">
-                <Link
-                  href="/login"
-                  className="text-lg font-medium text-slate-600 hover:text-blue-600 dark:text-slate-300 dark:hover:text-blue-400 text-center py-2"
-                  onClick={() => setIsOpen(false)}
-                >
-                  Login
-                </Link>
-                <Button
-                  asChild
-                  className="bg-blue-600 hover:bg-blue-700 text-white rounded-full py-6"
-                >
-                  <Link href="/register" onClick={() => setIsOpen(false)}>
-                    Sign Up Free
-                  </Link>
-                </Button>
+                {user ? (
+                  <>
+                    <ProfileDropdown />
+                  </>
+                ) : (
+                  <>
+                    <Link
+                      href="/login"
+                      className="text-lg font-medium text-slate-600 hover:text-blue-600 dark:text-slate-300 dark:hover:text-blue-400 text-center py-2"
+                      onClick={() => setIsOpen(false)}
+                    >
+                      Login
+                    </Link>
+                    <Button
+                      asChild
+                      className="bg-blue-600 hover:bg-blue-700 text-white rounded-full py-6"
+                    >
+                      <Link href="/register" onClick={() => setIsOpen(false)}>
+                        Sign Up Free
+                      </Link>
+                    </Button>
+                  </>
+                )}
               </div>
             </div>
           </motion.div>

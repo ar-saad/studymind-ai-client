@@ -22,6 +22,7 @@ export const metadata: Metadata = {
 
 import ReactQueryProvider from "@/providers/ReactQueryProvider";
 import { ThemeProvider } from "@/providers/ThemeProvider";
+import { UserProvider } from "@/providers/UserProvider";
 
 export default function RootLayout({
   children,
@@ -48,7 +49,9 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          <ReactQueryProvider>{children}</ReactQueryProvider>
+          <ReactQueryProvider>
+            <UserProvider>{children}</UserProvider>
+          </ReactQueryProvider>
         </ThemeProvider>
       </body>
     </html>

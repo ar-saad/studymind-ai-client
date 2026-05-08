@@ -25,7 +25,6 @@ export default function LoginPage() {
       const { data, error } = await signIn.email({
         email: values.email,
         password: values.password,
-        callbackURL: "/dashboard",
       });
 
       if (error) {
@@ -34,8 +33,13 @@ export default function LoginPage() {
 
       return data;
     },
-    onSuccess: () => {
-      router.push("/dashboard");
+    onSuccess: (data) => {
+      console.log(data);
+      if ((data?.user as { role?: string })?.role?.toLowerCase() === "admin") {
+        router.push("/admin");
+      } else {
+        router.push("/dashboard");
+      }
     },
   });
 
@@ -70,7 +74,11 @@ export default function LoginPage() {
             className="mb-6 p-4 bg-destructive/10 border border-destructive/20 rounded-2xl flex items-center gap-3 text-destructive text-sm"
           >
             <AlertCircle className="size-4 shrink-0" />
-            <p>{mutation.error instanceof Error ? mutation.error.message : "An error occurred"}</p>
+            <p>
+              {mutation.error instanceof Error
+                ? mutation.error.message
+                : "An error occurred"}
+            </p>
           </motion.div>
         )}
       </AnimatePresence>
@@ -87,7 +95,9 @@ export default function LoginPage() {
           name="email"
           children={(field) => (
             <div className="space-y-2">
-              <label className="text-sm font-medium text-foreground/80 ml-1">Email Address</label>
+              <label className="text-sm font-medium text-foreground/80 ml-1">
+                Email Address
+              </label>
               <div className="relative group">
                 <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-muted-foreground group-focus-within:text-blue-500 transition-colors">
                   <Mail className="size-5" />
@@ -102,13 +112,18 @@ export default function LoginPage() {
                   className="w-full bg-muted/40 border border-border rounded-2xl pl-11 pr-4 py-3.5 text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500/50 transition-all backdrop-blur-sm"
                 />
               </div>
-              {field.state.meta.isTouched && field.state.meta.errors.length > 0 && (
-                <p className="text-xs text-destructive mt-1 ml-1">
-                  {field.state.meta.errors.map((error: any) => 
-                    typeof error === 'string' ? error : error?.message || 'Invalid input'
-                  ).join(", ")}
-                </p>
-              )}
+              {field.state.meta.isTouched &&
+                field.state.meta.errors.length > 0 && (
+                  <p className="text-xs text-destructive mt-1 ml-1">
+                    {field.state.meta.errors
+                      .map((error: any) =>
+                        typeof error === "string"
+                          ? error
+                          : error?.message || "Invalid input",
+                      )
+                      .join(", ")}
+                  </p>
+                )}
             </div>
           )}
         />
@@ -118,8 +133,13 @@ export default function LoginPage() {
           children={(field) => (
             <div className="space-y-2">
               <div className="flex justify-between items-center mb-1 px-1">
-                <label className="text-sm font-medium text-foreground/80">Password</label>
-                <Link href="#" className="text-xs text-blue-600 dark:text-blue-400 hover:text-blue-500 dark:hover:text-blue-300 transition-colors">
+                <label className="text-sm font-medium text-foreground/80">
+                  Password
+                </label>
+                <Link
+                  href="#"
+                  className="text-xs text-blue-600 dark:text-blue-400 hover:text-blue-500 dark:hover:text-blue-300 transition-colors"
+                >
                   Forgot password?
                 </Link>
               </div>
@@ -137,13 +157,18 @@ export default function LoginPage() {
                   className="w-full bg-muted/40 border border-border rounded-2xl pl-11 pr-4 py-3.5 text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500/50 transition-all backdrop-blur-sm"
                 />
               </div>
-              {field.state.meta.isTouched && field.state.meta.errors.length > 0 && (
-                <p className="text-xs text-destructive mt-1 ml-1">
-                  {field.state.meta.errors.map((error: any) => 
-                    typeof error === 'string' ? error : error?.message || 'Invalid input'
-                  ).join(", ")}
-                </p>
-              )}
+              {field.state.meta.isTouched &&
+                field.state.meta.errors.length > 0 && (
+                  <p className="text-xs text-destructive mt-1 ml-1">
+                    {field.state.meta.errors
+                      .map((error: any) =>
+                        typeof error === "string"
+                          ? error
+                          : error?.message || "Invalid input",
+                      )
+                      .join(", ")}
+                  </p>
+                )}
             </div>
           )}
         />
@@ -163,8 +188,54 @@ export default function LoginPage() {
             </Button>
           )}
         />
+
+        <div className="relative my-6">
+          <div className="absolute inset-0 flex items-center">
+            <span className="w-full border-t border-slate-200 dark:border-slate-800" />
+          </div>
+          <div className="relative flex justify-center text-xs uppercase">
+            <span className="bg-background px-2 text-muted-foreground">
+              Or demo login
+            </span>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+          <Button
+            type="button"
+            variant="outline"
+            className="w-full text-xs"
+            onClick={() => {
+              form.setFieldValue("email", "user@studymind.ai");
+              form.setFieldValue("password", "Demo1234!");
+            }}
+          >
+            Free User
+          </Button>
+          <Button
+            type="button"
+            variant="outline"
+            className="w-full text-xs"
+            onClick={() => {
+              form.setFieldValue("email", "pro@studymind.ai");
+              form.setFieldValue("password", "Demo1234!");
+            }}
+          >
+            Pro User
+          </Button>
+          <Button
+            type="button"
+            variant="outline"
+            className="w-full text-xs"
+            onClick={() => {
+              form.setFieldValue("email", "admin@studymind.ai");
+              form.setFieldValue("password", "Admin1234!");
+            }}
+          >
+            Admin
+          </Button>
+        </div>
       </form>
     </AuthLayout>
   );
 }
-
