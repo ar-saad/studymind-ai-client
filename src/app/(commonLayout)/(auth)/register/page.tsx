@@ -1,9 +1,10 @@
 "use client";
 
+import { Suspense } from "react";
 import { useForm } from "@tanstack/react-form";
 import { useMutation } from "@tanstack/react-query";
 import { signUp } from "@/lib/auth-client";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { AuthLayout } from "@/components/auth/AuthLayout";
 import { Button } from "@/components/ui/button";
 
@@ -17,8 +18,10 @@ const registerSchema = z.object({
   password: z.string().min(8, "Password must be at least 8 characters"),
 });
 
-export default function RegisterPage() {
+function RegisterForm() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const callbackUrl = searchParams.get("callbackUrl");
 
   const mutation = useMutation({
     mutationFn: async (values: z.infer<typeof registerSchema>) => {
@@ -26,7 +29,7 @@ export default function RegisterPage() {
         email: values.email,
         password: values.password,
         name: values.name,
-        callbackURL: "/dashboard",
+        callbackURL: "/explore",
       });
 
       if (error) {
@@ -35,8 +38,14 @@ export default function RegisterPage() {
 
       return data;
     },
-    onSuccess: () => {
-      router.push("/dashboard");
+    onSuccess: (data) => {
+      if (callbackUrl) {
+        router.push(callbackUrl);
+      } else if ((data?.user as { role?: string })?.role?.toLowerCase() === "admin") {
+        router.push("/admin");
+      } else {
+        router.push("/explore");
+      }
     },
   });
 
@@ -56,13 +65,7 @@ export default function RegisterPage() {
   });
 
   return (
-    <AuthLayout
-      title="Create account"
-      subtitle="Start your mastery today"
-      footerText="Already have an account?"
-      footerLinkText="Sign in"
-      footerLinkHref="/login"
-    >
+    <>
       <AnimatePresence mode="wait">
         {mutation.isError && (
           <motion.div
@@ -216,6 +219,22 @@ export default function RegisterPage() {
           )}
         />
       </form>
+    </>
+  );
+}
+
+export default function RegisterPage() {
+  return (
+    <AuthLayout
+      title="Create account"
+      subtitle="Start your mastery today"
+      footerText="Already have an account?"
+      footerLinkText="Sign in"
+      footerLinkHref="/login"
+    >
+      <Suspense fallback={<div className="flex justify-center py-8"><Loader2 className="animate-spin text-blue-500" /></div>}>
+        <RegisterForm />
+      </Suspense>
     </AuthLayout>
   );
 }

@@ -65,7 +65,7 @@ export async function proxy(request: NextRequest) {
   if (isAdminRoute && isAuthenticated) {
     const isAdmin = userRole.toLowerCase() === "admin";
     if (!isAdmin) {
-      return NextResponse.redirect(new URL("/dashboard", request.url));
+      return NextResponse.redirect(new URL("/explore", request.url));
     }
   }
 
@@ -80,7 +80,7 @@ export async function proxy(request: NextRequest) {
   // Authenticated user trying to access login/register
   if (isAuthRoute && isAuthenticated) {
     const destination =
-      userRole.toLowerCase() === "admin" ? "/admin" : "/dashboard";
+      userRole.toLowerCase() === "admin" ? "/admin" : "/explore";
     return NextResponse.redirect(new URL(destination, request.url));
   }
 

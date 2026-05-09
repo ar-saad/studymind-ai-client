@@ -1,5 +1,6 @@
 "use client";
 
+import { Suspense } from "react";
 import { useForm } from "@tanstack/react-form";
 import { useMutation } from "@tanstack/react-query";
 import { signIn } from "@/lib/auth-client";
@@ -17,7 +18,7 @@ const loginSchema = z.object({
   password: z.string().min(6, "Password must be at least 6 characters"),
 });
 
-export default function LoginPage() {
+function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const callbackUrl = searchParams.get("callbackUrl");
@@ -41,7 +42,7 @@ export default function LoginPage() {
       } else if ((data?.user as { role?: string })?.role?.toLowerCase() === "admin") {
         router.push("/admin");
       } else {
-        router.push("/dashboard");
+        router.push("/explore");
       }
     },
   });
@@ -61,13 +62,7 @@ export default function LoginPage() {
   });
 
   return (
-    <AuthLayout
-      title="Welcome back"
-      subtitle="Master your learning journey"
-      footerText="Don't have an account?"
-      footerLinkText="Sign up"
-      footerLinkHref="/register"
-    >
+    <>
       <AnimatePresence mode="wait">
         {mutation.isError && (
           <motion.div
@@ -239,6 +234,22 @@ export default function LoginPage() {
           </Button>
         </div>
       </form>
+    </>
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <AuthLayout
+      title="Welcome back"
+      subtitle="Master your learning journey"
+      footerText="Don't have an account?"
+      footerLinkText="Sign up"
+      footerLinkHref="/register"
+    >
+      <Suspense fallback={<div className="flex justify-center py-8"><Loader2 className="animate-spin text-blue-500" /></div>}>
+        <LoginForm />
+      </Suspense>
     </AuthLayout>
   );
 }
