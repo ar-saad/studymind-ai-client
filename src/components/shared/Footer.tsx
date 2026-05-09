@@ -1,5 +1,7 @@
 import Link from "next/link";
-import { FaGithub, FaLinkedin, FaTwitter } from "react-icons/fa6";
+import Image from "next/image";
+import logo from "../../../public/icon.png";
+import { FaGithub, FaTwitter, FaGlobe } from "react-icons/fa6";
 
 export const Footer = () => {
   return (
@@ -7,12 +9,10 @@ export const Footer = () => {
       <div className="container mx-auto px-4 md:px-8 max-w-7xl">
         <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-12 mb-16">
           <div className="col-span-2">
-            <Link href="/" className="flex items-center gap-2 mb-6">
-              <div className="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center text-white">
-                <span className="font-black">S</span>
-              </div>
+            <Link href="/" className="flex items-center gap-2 mb-6 group">
+              <Image src={logo} alt="StudyMind AI Logo" className="w-8 h-8" />
               <span className="font-bold text-xl tracking-tight text-slate-900 dark:text-white">
-                StudyMind AI
+                StudyMind <span className="text-blue-600">AI</span>
               </span>
             </Link>
             <p className="text-slate-500 dark:text-slate-400 max-w-xs mb-8 leading-relaxed">
@@ -21,22 +21,31 @@ export const Footer = () => {
             </p>
             <div className="flex gap-4">
               <Link
-                href="#"
+                href="https://x.com/arsaad_dev"
+                target="_blank"
+                rel="noopener noreferrer"
                 className="w-10 h-10 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-600 dark:text-slate-400 hover:bg-blue-600 hover:text-white transition-all"
+                title="Twitter / X"
               >
                 <FaTwitter className="w-5 h-5" />
               </Link>
               <Link
-                href="#"
+                href="https://github.com/ar-saad"
+                target="_blank"
+                rel="noopener noreferrer"
                 className="w-10 h-10 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-600 dark:text-slate-400 hover:bg-blue-600 hover:text-white transition-all"
+                title="GitHub"
               >
                 <FaGithub className="w-5 h-5" />
               </Link>
               <Link
-                href="#"
+                href="https://ar-saad.vercel.app/"
+                target="_blank"
+                rel="noopener noreferrer"
                 className="w-10 h-10 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-600 dark:text-slate-400 hover:bg-blue-600 hover:text-white transition-all"
+                title="Developer Portfolio"
               >
-                <FaLinkedin className="w-5 h-5" />
+                <FaGlobe className="w-5 h-5" />
               </Link>
             </div>
           </div>
@@ -64,7 +73,7 @@ export const Footer = () => {
               </li>
               <li>
                 <Link
-                  href="#"
+                  href="/#how-it-works"
                   className="text-slate-500 hover:text-blue-600 dark:text-slate-400 transition-colors"
                 >
                   AI Features
@@ -72,10 +81,10 @@ export const Footer = () => {
               </li>
               <li>
                 <Link
-                  href="#"
+                  href="/#faq"
                   className="text-slate-500 hover:text-blue-600 dark:text-slate-400 transition-colors"
                 >
-                  Changelog
+                  F.A.Q.
                 </Link>
               </li>
             </ul>
@@ -96,18 +105,20 @@ export const Footer = () => {
               </li>
               <li>
                 <Link
-                  href="#"
+                  href="/profile"
                   className="text-slate-500 hover:text-blue-600 dark:text-slate-400 transition-colors"
                 >
-                  Blog
+                  My Profile
                 </Link>
               </li>
               <li>
                 <Link
-                  href="#"
+                  href="https://github.com/ar-saad"
+                  target="_blank"
+                  rel="noopener noreferrer"
                   className="text-slate-500 hover:text-blue-600 dark:text-slate-400 transition-colors"
                 >
-                  Community
+                  Creator GitHub
                 </Link>
               </li>
               <li>
@@ -128,7 +139,7 @@ export const Footer = () => {
             <ul className="space-y-4">
               <li>
                 <Link
-                  href="#"
+                  href="/privacy"
                   className="text-slate-500 hover:text-blue-600 dark:text-slate-400 transition-colors"
                 >
                   Privacy Policy
@@ -136,7 +147,7 @@ export const Footer = () => {
               </li>
               <li>
                 <Link
-                  href="#"
+                  href="/terms"
                   className="text-slate-500 hover:text-blue-600 dark:text-slate-400 transition-colors"
                 >
                   Terms of Service
@@ -144,7 +155,7 @@ export const Footer = () => {
               </li>
               <li>
                 <Link
-                  href="#"
+                  href="/privacy#cookies"
                   className="text-slate-500 hover:text-blue-600 dark:text-slate-400 transition-colors"
                 >
                   Cookie Policy

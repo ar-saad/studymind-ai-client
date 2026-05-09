@@ -1,13 +1,64 @@
 "use client";
 
+import { useState } from "react";
 import { motion } from "framer-motion";
-import { Mail, Phone, MapPin, Send, MessageSquare, Globe, ArrowRight } from "lucide-react";
+import { Mail, Phone, MapPin, Send, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 
 export const ContactForm = () => {
+  const [submitting, setSubmitting] = useState(false);
+  const [succeeded, setSucceeded] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setSubmitting(true);
+    setError(null);
+    setSucceeded(false);
+
+    const form = e.currentTarget;
+    const formData = new FormData(form);
+    const data = Object.fromEntries(formData.entries());
+
+    // Use environment variables for Formspree endpoint (form ID or full key)
+    const formspreeId = process.env.NEXT_PUBLIC_FORMSPREE_FORM_ID || process.env.NEXT_PUBLIC_FORMSPREE_KEY;
+
+    if (!formspreeId) {
+      setError("Contact form configuration is incomplete. Formspree ID is missing.");
+      setSubmitting(false);
+      return;
+    }
+
+    try {
+      const response = await fetch(`https://formspree.io/f/${formspreeId}`, {
+        method: "POST",
+        body: JSON.stringify(data),
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+        },
+      });
+
+      if (response.ok) {
+        setSucceeded(true);
+        form.reset();
+      } else {
+        const responseData = await response.json();
+        setError(
+          responseData.errors?.map((err: any) => err.message).join(", ") ||
+            "Failed to submit message."
+        );
+      }
+    } catch (err: any) {
+      setError(err.message || "An error occurred during submission.");
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
   return (
-    <section className="py-20">
+    <section className="py-20 bg-slate-50 dark:bg-slate-900/20">
       <div className="container mx-auto px-4 md:px-8 max-w-7xl">
         <div className="grid lg:grid-cols-3 gap-12">
           {/* Contact Info */}
@@ -33,7 +84,12 @@ export const ContactForm = () => {
                   </div>
                   <div>
                     <h4 className="font-bold text-slate-900 dark:text-white">Email Us</h4>
-                    <p className="text-slate-600 dark:text-slate-400">support@studymind.ai</p>
+                    <a
+                      href="mailto:arsaad.dev@gmail.com"
+                      className="text-slate-600 dark:text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+                    >
+                      arsaad.dev@gmail.com
+                    </a>
                   </div>
                 </div>
 
@@ -43,7 +99,12 @@ export const ContactForm = () => {
                   </div>
                   <div>
                     <h4 className="font-bold text-slate-900 dark:text-white">Call Us</h4>
-                    <p className="text-slate-600 dark:text-slate-400">+1 (555) 000-0000</p>
+                    <a
+                      href="tel:+8801749855360"
+                      className="text-slate-600 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors"
+                    >
+                      +8801749855360
+                    </a>
                   </div>
                 </div>
 
@@ -53,7 +114,14 @@ export const ContactForm = () => {
                   </div>
                   <div>
                     <h4 className="font-bold text-slate-900 dark:text-white">Our Office</h4>
-                    <p className="text-slate-600 dark:text-slate-400">123 AI Boulevard, San Francisco, CA 94103</p>
+                    <a
+                      href="https://maps.google.com/?q=Rajshahi+Bangladesh"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-slate-600 dark:text-slate-400 hover:text-purple-600 dark:hover:text-purple-400 transition-colors"
+                    >
+                      Rajshahi Bangladesh
+                    </a>
                   </div>
                 </div>
               </div>
@@ -80,7 +148,27 @@ export const ContactForm = () => {
               transition={{ duration: 0.6, delay: 0.2 }}
               className="bg-white dark:bg-slate-800 p-8 md:p-12 rounded-3xl border border-slate-100 dark:border-slate-700 shadow-xl shadow-slate-200/50 dark:shadow-none"
             >
-              <form className="space-y-6">
+              <form onSubmit={handleSubmit} className="space-y-6">
+                {succeeded && (
+                  <motion.div
+                    initial={{ opacity: 0, y: -10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="p-4 bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-800 rounded-2xl text-emerald-800 dark:text-emerald-400 text-sm font-medium"
+                  >
+                    Thank you! Your message has been sent successfully. We'll get back to you soon.
+                  </motion.div>
+                )}
+
+                {error && (
+                  <motion.div
+                    initial={{ opacity: 0, y: -10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="p-4 bg-rose-50 dark:bg-rose-950/30 border border-rose-200 dark:border-rose-800 rounded-2xl text-rose-800 dark:text-rose-400 text-sm font-medium"
+                  >
+                    {error}
+                  </motion.div>
+                )}
+
                 <div className="grid md:grid-cols-2 gap-6">
                   <div className="space-y-2">
                     <label className="text-sm font-semibold text-slate-700 dark:text-slate-300 ml-1">
@@ -88,8 +176,10 @@ export const ContactForm = () => {
                     </label>
                     <input
                       type="text"
+                      name="name"
+                      required
                       placeholder="John Doe"
-                      className="w-full px-5 py-4 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-2xl focus:outline-hidden focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all"
+                      className="w-full px-5 py-4 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-2xl focus:outline-hidden focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-slate-900 dark:text-white"
                     />
                   </div>
                   <div className="space-y-2">
@@ -98,8 +188,10 @@ export const ContactForm = () => {
                     </label>
                     <input
                       type="email"
+                      name="email"
+                      required
                       placeholder="john@example.com"
-                      className="w-full px-5 py-4 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-2xl focus:outline-hidden focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all"
+                      className="w-full px-5 py-4 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-2xl focus:outline-hidden focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-slate-900 dark:text-white"
                     />
                   </div>
                 </div>
@@ -108,11 +200,15 @@ export const ContactForm = () => {
                   <label className="text-sm font-semibold text-slate-700 dark:text-slate-300 ml-1">
                     Subject
                   </label>
-                  <select className="w-full px-5 py-4 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-2xl focus:outline-hidden focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all appearance-none">
-                    <option>General Inquiry</option>
-                    <option>Technical Support</option>
-                    <option>Feedback</option>
-                    <option>Partnership</option>
+                  <select
+                    name="subject"
+                    required
+                    className="w-full px-5 py-4 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-2xl focus:outline-hidden focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-slate-900 dark:text-white appearance-none"
+                  >
+                    <option value="General Inquiry">General Inquiry</option>
+                    <option value="Technical Support">Technical Support</option>
+                    <option value="Feedback">Feedback</option>
+                    <option value="Partnership">Partnership</option>
                   </select>
                 </div>
 
@@ -121,15 +217,21 @@ export const ContactForm = () => {
                     Your Message
                   </label>
                   <textarea
+                    name="message"
+                    required
                     rows={6}
                     placeholder="Tell us how we can help..."
-                    className="w-full px-5 py-4 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-2xl focus:outline-hidden focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all resize-none"
+                    className="w-full px-5 py-4 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-2xl focus:outline-hidden focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-slate-900 dark:text-white resize-none"
                   ></textarea>
                 </div>
 
-                <Button className="w-full py-7 text-lg bg-blue-600 hover:bg-blue-700 text-white rounded-2xl shadow-lg shadow-blue-500/20 transition-all hover:scale-[1.02] active:scale-[0.98]">
+                <Button
+                  type="submit"
+                  disabled={submitting}
+                  className="w-full py-7 text-lg bg-blue-600 hover:bg-blue-700 text-white rounded-2xl shadow-lg shadow-blue-500/20 transition-all hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 disabled:hover:scale-100 disabled:active:scale-100"
+                >
                   <Send className="w-5 h-5 mr-2" />
-                  Send Message
+                  {submitting ? "Sending..." : "Send Message"}
                 </Button>
               </form>
             </motion.div>
@@ -139,3 +241,4 @@ export const ContactForm = () => {
     </section>
   );
 };
+

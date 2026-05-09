@@ -2,26 +2,28 @@
 
 import Image from "next/image";
 import { motion } from "framer-motion";
-import { FaTwitter, FaLinkedin } from "react-icons/fa6";
+import { TbWorldWww } from "react-icons/tb";
+import { FaTwitter } from "react-icons/fa6";
+import Link from "next/link";
 
 const team = [
   {
-    name: "Alex Rivera",
-    role: "Founder & CEO",
-    bio: "Ex-Google Engineer with a passion for educational technology.",
-    image: "https://api.dicebear.com/7.x/avataaars/svg?seed=Alex",
+    name: "Abdur Rahman",
+    role: "Founder & Lead Developer",
+    bio: "Passionate full-stack engineer and creator of StudyMind AI, dedicated to building intelligent solutions that make high-quality learning accessible to everyone.",
+    image: "/images/profile_picture.png",
   },
   {
-    name: "Sarah Chen",
-    role: "Head of AI",
-    bio: "PhD in NLP and 10 years of experience in generative models.",
-    image: "https://api.dicebear.com/7.x/avataaars/svg?seed=Sarah",
+    name: "Abdur Rahman Saad",
+    role: "Head of AI & Algorithms",
+    bio: "Designing and fine-tuning advanced prompt systems and LLM workflows to deliver incredibly accurate, pedagogical, and context-aware study resources.",
+    image: "/images/profile_picture.png",
   },
   {
-    name: "Marcus Thorne",
-    role: "Lead Designer",
-    bio: "Award-winning UI/UX designer obsessed with learning experiences.",
-    image: "https://api.dicebear.com/7.x/avataaars/svg?seed=Marcus",
+    name: "Abdur Rahman Ibne Mijan",
+    role: "Lead UI/UX Designer",
+    bio: "Crafting beautiful, intuitive, and modern educational interfaces. Obsessed with micro-animations, layout harmony, and premium design aesthetics.",
+    image: "/images/profile_picture.png",
   },
 ];
 
@@ -38,14 +40,14 @@ export const Team = () => {
               transition={{ duration: 0.6 }}
             >
               <h2 className="text-3xl md:text-4xl font-bold text-slate-900 dark:text-white mb-6">
-                Meet the Minds Behind the{" "}
+                Meet the Mind Behind the{" "}
                 <span className="text-blue-600">Innovation</span>
               </h2>
               <p className="text-lg text-slate-600 dark:text-slate-400 mb-8 leading-relaxed">
-                We're a small but mighty team of engineers, designers, and
-                educators based in San Francisco, working remotely across 3
-                continents. We're united by our love for learning and our belief
-                in AI's potential to transform education.
+                StudyMind AI is a solo project designed and built with passion.
+                From core server systems and AI architectures to the interactive
+                user experience, every detail has been carefully engineered to
+                transform how you learn.
               </p>
               <div className="relative rounded-2xl overflow-hidden shadow-xl border border-slate-200 dark:border-slate-800">
                 <Image
@@ -58,7 +60,7 @@ export const Team = () => {
                 <div className="absolute inset-0 bg-linear-to-t from-slate-900/60 to-transparent" />
                 <div className="absolute bottom-6 left-6 right-6">
                   <p className="text-white text-sm font-medium italic">
-                    "Building the future of learning together."
+                    "Building the future of learning, one prompt at a time."
                   </p>
                 </div>
               </div>
@@ -69,7 +71,7 @@ export const Team = () => {
             <div className="grid gap-6">
               {team.map((member, index) => (
                 <motion.div
-                  key={member.name}
+                  key={index}
                   initial={{ opacity: 0, x: 20 }}
                   whileInView={{ opacity: 1, x: 0 }}
                   viewport={{ once: true }}
@@ -80,7 +82,7 @@ export const Team = () => {
                     <img
                       src={member.image}
                       alt={member.name}
-                      className="w-full h-full"
+                      className="w-full h-full object-cover"
                     />
                   </div>
                   <div className="flex-1">
@@ -89,8 +91,20 @@ export const Team = () => {
                         {member.name}
                       </h3>
                       <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                        <FaLinkedin className="w-4 h-4 text-slate-400 hover:text-blue-600 cursor-pointer" />
-                        <FaTwitter className="w-4 h-4 text-slate-400 hover:text-blue-400 cursor-pointer" />
+                        <Link
+                          href="https://ar-saad.vercel.app/"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
+                          <TbWorldWww className="w-4 h-4 text-slate-400 hover:text-blue-600 cursor-pointer" />
+                        </Link>
+                        <Link
+                          href="https://x.com/arsaad_dev"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
+                          <FaTwitter className="w-4 h-4 text-slate-400 hover:text-blue-400 cursor-pointer" />
+                        </Link>
                       </div>
                     </div>
                     <p className="text-blue-600 dark:text-blue-400 text-sm font-medium mb-3 uppercase tracking-wider">
