@@ -38,7 +38,13 @@ const steps = [
 
 const mainFeatures = [
   {
-    title: "AI Study Guides",
+    title: "Smart Topic Builder",
+    description:
+      "Generate fully customized learning topics on-demand using advanced AI models.",
+    icon: Shield,
+  },
+  {
+    title: "Structured Study Guides",
     description:
       "Structured breakdowns of complex topics tailored to your selected difficulty level.",
     icon: Zap,
@@ -61,12 +67,7 @@ const mainFeatures = [
       "Visualize your learning journey with charts and score histories.",
     icon: BarChart3,
   },
-  {
-    title: "Smart Learning Paths",
-    description:
-      "Pro feature that suggests the next best topic to master based on your interests.",
-    icon: Shield,
-  },
+
   {
     title: "Custom Difficulty",
     description:
@@ -77,7 +78,7 @@ const mainFeatures = [
 
 export const Features = () => {
   return (
-    <section className="py-24 bg-slate-50 dark:bg-slate-900/50">
+    <section id="how-it-works" className="py-24 bg-slate-50 dark:bg-slate-900/50">
       <div className="container mx-auto px-4 md:px-8 max-w-7xl">
         {/* How it Works */}
         <div className="text-center mb-20">

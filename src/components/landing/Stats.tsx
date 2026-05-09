@@ -2,20 +2,28 @@
 
 import { motion } from "framer-motion";
 import { Users, BookOpen, CheckCircle, GraduationCap } from "lucide-react";
-
-const stats = [
-  { label: "Topics Generated", value: "124,500+", icon: BookOpen },
-  { label: "Active Users", value: "50,000+", icon: Users },
-  { label: "Quizzes Taken", value: "340,000+", icon: CheckCircle },
-  { label: "Success Rate", value: "98.5%", icon: GraduationCap },
-];
+import { topicService } from "@/services/topic.service";
+import { useQuery } from "@tanstack/react-query";
 
 export const Stats = () => {
+  const { data, isLoading } = useQuery({
+    queryKey: ["public-stats"],
+    queryFn: topicService.getPublicStats,
+    staleTime: 5 * 60 * 1000, // 5 minutes cache
+  });
+
+  const statsList = [
+    { label: "Topics Generated", value: isLoading ? "..." : `${data?.totalTopics ?? 24}`, icon: BookOpen },
+    { label: "Active Users", value: isLoading ? "..." : `${data?.totalUsers ?? 3}`, icon: Users },
+    { label: "Quizzes Taken", value: isLoading ? "..." : `${data?.totalQuizzes ?? 5}`, icon: CheckCircle },
+    { label: "Success Rate", value: isLoading ? "..." : `${data?.successRate ?? 98.5}%`, icon: GraduationCap },
+  ];
+
   return (
     <section className="py-20 bg-blue-600">
       <div className="container mx-auto px-4 md:px-8 max-w-7xl">
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-8">
-          {stats.map((stat, index) => (
+          {statsList.map((stat, index) => (
             <motion.div
               key={stat.label}
               initial={{ opacity: 0, scale: 0.5 }}

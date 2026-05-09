@@ -5,25 +5,38 @@ import { Button } from "@/components/ui/button";
 import { Sparkles, Play, ArrowRight, Brain, Zap, Target } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
-
-const topics = [
-  "Quantum Physics",
-  "World War II",
-  "Machine Learning",
-  "Roman Empire",
-  "Neuroscience",
-  "Blockchain",
-];
+import { useQuery } from "@tanstack/react-query";
+import { topicService } from "@/services/topic.service";
+import { useSession } from "@/lib/auth-client";
 
 export const Hero = () => {
   const [activeTopicIndex, setActiveTopicIndex] = useState(0);
 
+  const { data: stats } = useQuery({
+    queryKey: ["public-stats"],
+    queryFn: topicService.getPublicStats,
+    staleTime: 5 * 60 * 1000, // 5 minutes cache
+  });
+
+  const { data: sessionData } = useSession();
+  const session = sessionData?.session;
+
+  const activeTopics = stats?.popularTopics || [
+    { title: "Quantum Physics", slug: "quantum-physics" },
+    { title: "World War II", slug: "world-war-ii" },
+    { title: "Machine Learning", slug: "machine-learning" },
+    { title: "Roman Empire", slug: "roman-empire" },
+    { title: "Neuroscience", slug: "neuroscience" },
+    { title: "Blockchain", slug: "blockchain" },
+  ];
+
   useEffect(() => {
+    if (activeTopics.length === 0) return;
     const interval = setInterval(() => {
-      setActiveTopicIndex((prev) => (prev + 1) % topics.length);
+      setActiveTopicIndex((prev) => (prev + 1) % activeTopics.length);
     }, 3000);
     return () => clearInterval(interval);
-  }, []);
+  }, [activeTopics.length]);
 
   return (
     <section className="relative pt-32 pb-20 md:pt-48 md:pb-32 overflow-hidden">
@@ -76,8 +89,9 @@ export const Hero = () => {
             <Button
               size="lg"
               className="bg-blue-600 hover:bg-blue-700 text-white h-14 px-10 text-lg rounded-full shadow-lg shadow-blue-500/25 group"
+              asChild
             >
-              <Link href="/register" className="flex items-center gap-2">
+              <Link href={session ? "/explore" : "/register"} className="flex items-center gap-2">
                 Start Learning Free
                 <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
               </Link>
@@ -86,6 +100,9 @@ export const Hero = () => {
               size="lg"
               variant="outline"
               className="h-14 px-10 text-lg rounded-full border-2 hover:bg-slate-50 dark:hover:bg-slate-900"
+              onClick={() => {
+                document.getElementById("how-it-works")?.scrollIntoView({ behavior: "smooth" });
+              }}
             >
               <Play className="w-5 h-5 mr-2 fill-current" />
               How It Works
@@ -103,29 +120,33 @@ export const Hero = () => {
               What do you want to learn today?
             </p>
             <div className="flex flex-wrap justify-center gap-3">
-              {topics.map((topic, index) => (
-                <motion.div
-                  key={topic}
-                  initial={{ backgroundColor: "rgba(37, 99, 235, 0)" }}
-                  animate={{
-                    scale: activeTopicIndex === index ? 1.05 : 1,
-                    backgroundColor:
-                      activeTopicIndex === index
-                        ? "rgba(37, 99, 235, 0.1)"
-                        : "rgba(37, 99, 235, 0)",
-                    borderColor:
-                      activeTopicIndex === index
-                        ? "rgba(37, 99, 235, 0.5)"
-                        : "rgba(226, 232, 240, 1)",
-                  }}
-                  className={`px-6 py-3 rounded-2xl border-2 transition-colors duration-500 text-sm md:text-base font-semibold ${
-                    activeTopicIndex === index
-                      ? "text-blue-600 border-blue-500/50 dark:text-blue-400 dark:border-blue-400/50"
-                      : "text-slate-500 border-slate-200 dark:border-slate-800 dark:text-slate-500"
-                  }`}
+              {activeTopics.map((topic, index) => (
+                <Link
+                  key={topic.slug}
+                  href={`/explore/${topic.slug}`}
                 >
-                  {topic}
-                </motion.div>
+                  <motion.div
+                    initial={{ backgroundColor: "rgba(37, 99, 235, 0)" }}
+                    animate={{
+                      scale: activeTopicIndex === index ? 1.05 : 1,
+                      backgroundColor:
+                        activeTopicIndex === index
+                          ? "rgba(37, 99, 235, 0.1)"
+                          : "rgba(37, 99, 235, 0)",
+                      borderColor:
+                        activeTopicIndex === index
+                          ? "rgba(37, 99, 235, 0.5)"
+                          : "rgba(226, 232, 240, 1)",
+                    }}
+                    className={`px-6 py-3 rounded-2xl border-2 transition-colors duration-500 text-sm md:text-base font-semibold cursor-pointer ${
+                      activeTopicIndex === index
+                        ? "text-blue-600 border-blue-500/50 dark:text-blue-400 dark:border-blue-400/50"
+                        : "text-slate-500 border-slate-200 dark:border-slate-800 dark:text-slate-500"
+                    }`}
+                  >
+                    {topic.title}
+                  </motion.div>
+                </Link>
               ))}
             </div>
           </motion.div>
@@ -134,19 +155,21 @@ export const Hero = () => {
 
       {/* Floating Elements for extra premium feel */}
       <div className="hidden lg:block">
-        <motion.div
-          animate={{ y: [0, -20, 0] }}
-          transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
-          className="absolute top-1/4 left-10 p-4 bg-white dark:bg-slate-900 rounded-2xl shadow-xl border border-slate-100 dark:border-slate-800 flex items-center gap-4"
-        >
-          <div className="w-10 h-10 rounded-full bg-blue-100 dark:bg-blue-900/50 flex items-center justify-center text-blue-600">
-            <Brain className="w-6 h-6" />
-          </div>
-          <div>
-            <p className="text-xs text-slate-500">Guide Generated</p>
-            <p className="text-sm font-bold">Quantum Mechanics</p>
-          </div>
-        </motion.div>
+        <Link href={`/explore/${stats?.newestTopic?.slug ?? "quantum-mechanics"}`}>
+          <motion.div
+            animate={{ y: [0, -20, 0] }}
+            transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+            className="absolute top-1/4 left-10 p-4 bg-white dark:bg-slate-900 rounded-2xl shadow-xl border border-slate-100 dark:border-slate-800 flex items-center gap-4 hover:border-blue-500/50 transition-colors cursor-pointer"
+          >
+            <div className="w-10 h-10 rounded-full bg-blue-100 dark:bg-blue-900/50 flex items-center justify-center text-blue-600">
+              <Brain className="w-6 h-6" />
+            </div>
+            <div>
+              <p className="text-xs text-slate-500">Guide Generated</p>
+              <p className="text-sm font-bold">{stats?.newestTopic?.title ?? "Quantum Mechanics"}</p>
+            </div>
+          </motion.div>
+        </Link>
 
         <motion.div
           animate={{ y: [0, 20, 0] }}
@@ -162,8 +185,8 @@ export const Hero = () => {
             <Target className="w-6 h-6" />
           </div>
           <div>
-            <p className="text-xs text-slate-500">Quiz Score</p>
-            <p className="text-sm font-bold">95% Mastery</p>
+            <p className="text-xs text-slate-500">Average Quiz Score</p>
+            <p className="text-sm font-bold">{stats?.averageQuizScore ?? 95}% Mastery</p>
           </div>
         </motion.div>
       </div>

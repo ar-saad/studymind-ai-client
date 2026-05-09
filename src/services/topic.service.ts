@@ -58,6 +58,16 @@ export interface GetTopicsParams {
   sort?: "popular" | "newest" | "alphabetical";
 }
 
+export interface PublicStats {
+  totalTopics: number;
+  totalUsers: number;
+  totalQuizzes: number;
+  successRate: number;
+  averageQuizScore: number;
+  newestTopic: { title: string; slug: string };
+  popularTopics: { title: string; slug: string }[];
+}
+
 export const topicService = {
   getTopics: async (params: GetTopicsParams = {}) => {
     const { data } = await apiClient.get<TopicsResponse>("/topics", { params });
@@ -76,6 +86,11 @@ export const topicService = {
 
   getCategories: async () => {
     const { data } = await apiClient.get<{ data: string[] }>("/topics/categories");
+    return data.data;
+  },
+
+  getPublicStats: async () => {
+    const { data } = await apiClient.get<{ data: PublicStats }>("/topics/stats/public");
     return data.data;
   },
 
