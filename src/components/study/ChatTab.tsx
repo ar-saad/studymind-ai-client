@@ -18,10 +18,19 @@ interface ChatTabProps {
   topicId: string;
   topicTitle: string;
   difficulty: string;
+  /** Chat messages lifted from parent — persists across tab switches */
+  chatMessages: ChatMessage[];
+  /** Callback to update the parent when messages change */
+  onChatMessagesUpdate: (messages: ChatMessage[]) => void;
 }
 
-export default function ChatTab({ topicId, topicTitle, difficulty }: ChatTabProps) {
-  const [messages, setMessages] = useState<ChatMessage[]>([]);
+export default function ChatTab({
+  topicId,
+  topicTitle,
+  difficulty,
+  chatMessages,
+  onChatMessagesUpdate,
+}: ChatTabProps) {
   const [inputValue, setInputValue] = useState("");
   const [limitReached, setLimitReached] = useState(false);
   const [generationsUsed, setGenerationsUsed] = useState(0);
@@ -55,21 +64,23 @@ export default function ChatTab({ topicId, topicTitle, difficulty }: ChatTabProp
     mutationFn: (newMessages: ChatMessage[]) =>
       aiService.chat(topicId, difficulty, newMessages),
     onSuccess: (data) => {
-      setMessages((prev) => [
-        ...prev,
+      const updatedMessages: ChatMessage[] = [
+        ...chatMessages,
         { role: "model", content: data.message },
-      ]);
+      ];
+      onChatMessagesUpdate(updatedMessages);
       setGenerationsUsed(data.usage.generationsUsed);
       setLimit(data.usage.limit);
     },
     onError: (error) => {
-      setMessages((prev) => [
-        ...prev,
+      const updatedMessages: ChatMessage[] = [
+        ...chatMessages,
         {
           role: "model",
           content: `⚠️ ${error instanceof Error ? error.message : "Failed to get a response. Please try again."}`,
         },
-      ]);
+      ];
+      onChatMessagesUpdate(updatedMessages);
       // Check if the error was a rate limit
       if (error instanceof Error && (error as any).status === 429) {
         setLimitReached(true);
@@ -80,7 +91,7 @@ export default function ChatTab({ topicId, topicTitle, difficulty }: ChatTabProp
   // Auto-scroll to bottom
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages, isPending]);
+  }, [chatMessages, isPending]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -88,14 +99,14 @@ export default function ChatTab({ topicId, topicTitle, difficulty }: ChatTabProp
     if (!trimmed || isPending || limitReached) return;
 
     const userMessage: ChatMessage = { role: "user", content: trimmed };
-    const newMessages = [...messages, userMessage];
-    setMessages(newMessages);
+    const newMessages = [...chatMessages, userMessage];
+    onChatMessagesUpdate(newMessages);
     setInputValue("");
     sendMessage(newMessages);
   };
 
   // ─── Empty State ─────────────────────────────────────────────────
-  if (messages.length === 0 && !isPending) {
+  if (chatMessages.length === 0 && !isPending) {
     return (
       <div className="bg-card border border-border rounded-xl overflow-hidden flex flex-col" style={{ minHeight: "500px" }}>
         {/* Chat header */}
@@ -208,7 +219,7 @@ export default function ChatTab({ topicId, topicTitle, difficulty }: ChatTabProp
       {/* Messages */}
       <div className="flex-1 overflow-y-auto p-4 space-y-4">
         <AnimatePresence initial={false}>
-          {messages.map((msg, idx) => (
+          {chatMessages.map((msg, idx) => (
             <motion.div
               key={idx}
               initial={{ opacity: 0, y: 10 }}

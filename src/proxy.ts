@@ -17,7 +17,6 @@ async function getSession(request: NextRequest) {
     if (!response.ok) return null;
     const session = await response.json();
 
-    console.log("session", session);
     return session?.user ? session : null;
   } catch {
     return null;

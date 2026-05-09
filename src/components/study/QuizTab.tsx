@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import { useMutation } from "@tanstack/react-query";
-import { aiService, QuizQuestion } from "@/services/ai.service";
+import { aiService, QuizQuestion, StudyGuideData } from "@/services/ai.service";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Brain,
@@ -17,12 +17,19 @@ import {
   ListChecks,
   AlertTriangle,
   Sparkles,
+  BookOpen,
 } from "lucide-react";
 
 interface QuizTabProps {
   topicId: string;
   topicTitle: string;
   difficulty: string;
+  /** Study guide data from parent — quiz can only be generated when this exists */
+  studyGuide: StudyGuideData | null;
+  /** Quiz questions lifted from parent — persists across tab switches */
+  quizQuestions: QuizQuestion[];
+  /** Callback to update the parent when a new quiz is generated */
+  onQuizGenerated: (questions: QuizQuestion[]) => void;
 }
 
 type QuizState = "idle" | "playing" | "answered" | "results" | "review";
@@ -34,9 +41,19 @@ interface AnswerRecord {
   correct: boolean;
 }
 
-export default function QuizTab({ topicId, topicTitle, difficulty }: QuizTabProps) {
-  const [quizState, setQuizState] = useState<QuizState>("idle");
-  const [questions, setQuestions] = useState<QuizQuestion[]>([]);
+export default function QuizTab({
+  topicId,
+  topicTitle,
+  difficulty,
+  studyGuide,
+  quizQuestions,
+  onQuizGenerated,
+}: QuizTabProps) {
+  // Determine initial state based on whether we already have quiz data
+  const [quizState, setQuizState] = useState<QuizState>(
+    quizQuestions.length > 0 ? "playing" : "idle",
+  );
+  const [questions, setQuestions] = useState<QuizQuestion[]>(quizQuestions);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [selectedOption, setSelectedOption] = useState<number | null>(null);
   const [answers, setAnswers] = useState<AnswerRecord[]>([]);
@@ -46,15 +63,17 @@ export default function QuizTab({ topicId, topicTitle, difficulty }: QuizTabProp
   const [limit, setLimit] = useState<number | string>("...");
   const timerRef = useRef<NodeJS.Timeout | null>(null);
 
-  // Generate quiz mutation
+  // Generate quiz mutation — pass study guide context to backend
   const {
     mutate: generateQuiz,
     isPending,
     error,
   } = useMutation({
-    mutationFn: () => aiService.generateQuiz(topicId, difficulty),
+    mutationFn: () =>
+      aiService.generateQuiz(topicId, difficulty, 10, studyGuide),
     onSuccess: (data) => {
       setQuestions(data.quiz.questions);
+      onQuizGenerated(data.quiz.questions);
       setCurrentIndex(0);
       setSelectedOption(null);
       setAnswers([]);
@@ -97,7 +116,8 @@ export default function QuizTab({ topicId, topicTitle, difficulty }: QuizTabProp
 
   const currentQuestion = questions[currentIndex];
   const totalQuestions = questions.length;
-  const progress = totalQuestions > 0 ? ((currentIndex + 1) / totalQuestions) * 100 : 0;
+  const progress =
+    totalQuestions > 0 ? ((currentIndex + 1) / totalQuestions) * 100 : 0;
 
   // Handle answer selection (optimistic UI)
   const handleSelectOption = (optionIndex: number) => {
@@ -131,11 +151,14 @@ export default function QuizTab({ topicId, topicTitle, difficulty }: QuizTabProp
       setQuizState("results");
 
       // Calculate score and save (fire and forget)
-      const correctCount = [...answers].filter((a) => a.correct).length +
+      const correctCount =
+        [...answers].filter((a) => a.correct).length +
         (selectedOption === currentQuestion.correctIndex ? 1 : 0);
       // Actually answers already has the last answer since handleSelectOption runs first
       const finalAnswers = answers;
-      const score = Math.round((finalAnswers.filter(a => a.correct).length / totalQuestions) * 100);
+      const score = Math.round(
+        (finalAnswers.filter((a) => a.correct).length / totalQuestions) * 100,
+      );
       const passed = score >= 60;
 
       saveResult({ score, timeTaken, passed, answers: finalAnswers });
@@ -151,6 +174,34 @@ export default function QuizTab({ topicId, topicTitle, difficulty }: QuizTabProp
   const errorMessage =
     error instanceof Error ? error.message : "Failed to generate quiz.";
 
+  // ─── No Study Guide State ───────────────────────────────────────
+  if (!studyGuide && quizState === "idle") {
+    return (
+      <div className="bg-card border border-border rounded-xl p-6 md:p-8 min-h-100">
+        <div className="text-center py-16">
+          <div className="relative inline-block mb-6">
+            <div className="absolute inset-0 bg-amber-500/20 rounded-full blur-xl animate-pulse" />
+            <BookOpen className="relative w-16 h-16 text-amber-500/60" />
+          </div>
+          <h3 className="text-xl font-semibold text-foreground mb-2">
+            Study Guide Required
+          </h3>
+          <p className="text-muted-foreground mb-4 max-w-md mx-auto">
+            You need to generate a study guide first before taking a quiz. The
+            quiz questions are created from the study guide content to ensure
+            you&apos;re tested on what you&apos;ve studied.
+          </p>
+          <div className="inline-flex items-center gap-2 text-sm text-amber-600 dark:text-amber-400 bg-amber-500/10 border border-amber-500/20 rounded-xl px-4 py-2.5">
+            <AlertTriangle className="w-4 h-4 shrink-0" />
+            <span>
+              Switch to the <strong>Study Guide</strong> tab to generate one
+            </span>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   // ─── Idle State ──────────────────────────────────────────────────
   if (quizState === "idle" && !isPending && !error) {
     return (
@@ -165,8 +216,9 @@ export default function QuizTab({ topicId, topicTitle, difficulty }: QuizTabProp
           </h3>
           <p className="text-muted-foreground mb-6 max-w-md mx-auto">
             Test your knowledge of{" "}
-            <span className="font-medium text-foreground">{topicTitle}</span> with
-            10 AI-generated multiple-choice questions.
+            <span className="font-medium text-foreground">{topicTitle}</span>{" "}
+            with 10 AI-generated multiple-choice questions based on your study
+            guide.
           </p>
           <button
             onClick={() => generateQuiz()}
@@ -318,6 +370,7 @@ export default function QuizTab({ topicId, topicTitle, difficulty }: QuizTabProp
                 setQuizState("idle");
                 setQuestions([]);
                 setAnswers([]);
+                onQuizGenerated([]);
               }}
               className="flex items-center gap-2 bg-purple-600 hover:bg-purple-700 text-white font-medium px-5 py-2.5 rounded-xl transition-colors"
             >
@@ -419,7 +472,9 @@ export default function QuizTab({ topicId, topicTitle, difficulty }: QuizTabProp
                 </div>
 
                 <div className="ml-10 text-sm text-muted-foreground bg-muted/30 rounded-lg p-3">
-                  <span className="font-medium text-foreground">Explanation: </span>
+                  <span className="font-medium text-foreground">
+                    Explanation:{" "}
+                  </span>
                   {q.explanation}
                 </div>
               </motion.div>
@@ -439,6 +494,7 @@ export default function QuizTab({ topicId, topicTitle, difficulty }: QuizTabProp
               setQuizState("idle");
               setQuestions([]);
               setAnswers([]);
+              onQuizGenerated([]);
             }}
             className="flex items-center gap-2 bg-purple-600 hover:bg-purple-700 text-white font-medium px-5 py-2.5 rounded-xl transition-colors"
           >
@@ -479,7 +535,7 @@ export default function QuizTab({ topicId, topicTitle, difficulty }: QuizTabProp
         </div>
         <div className="h-2 bg-muted rounded-full overflow-hidden">
           <motion.div
-            className="h-full bg-gradient-to-r from-purple-500 to-blue-500 rounded-full"
+            className="h-full bg-linear-to-r from-purple-500 to-blue-500 rounded-full"
             initial={{ width: 0 }}
             animate={{ width: `${progress}%` }}
             transition={{ duration: 0.3 }}
@@ -522,7 +578,8 @@ export default function QuizTab({ topicId, topicTitle, difficulty }: QuizTabProp
                   optIdx === selectedOption &&
                   optIdx !== currentQuestion.correctIndex
                 ) {
-                  optionStyle = "border-red-500/50 bg-red-500/10 cursor-default";
+                  optionStyle =
+                    "border-red-500/50 bg-red-500/10 cursor-default";
                   iconEl = (
                     <XCircle className="w-8 h-8 text-red-500 shrink-0" />
                   );

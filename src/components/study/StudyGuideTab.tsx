@@ -18,14 +18,19 @@ interface StudyGuideTabProps {
   topicId: string;
   topicTitle: string;
   difficulty: string;
+  /** Study guide data lifted from parent — persists across tab switches */
+  studyGuide: StudyGuideData | null;
+  /** Callback to update the parent when a new guide is generated */
+  onStudyGuideGenerated: (guide: StudyGuideData) => void;
 }
 
 export default function StudyGuideTab({
   topicId,
   topicTitle,
   difficulty,
+  studyGuide,
+  onStudyGuideGenerated,
 }: StudyGuideTabProps) {
-  const [guide, setGuide] = useState<StudyGuideData | null>(null);
   const [generationsUsed, setGenerationsUsed] = useState<number>(0);
   const [limit, setLimit] = useState<number | string>("...");
 
@@ -36,7 +41,7 @@ export default function StudyGuideTab({
   } = useMutation({
     mutationFn: () => aiService.generateStudyGuide(topicId, difficulty),
     onSuccess: (data) => {
-      setGuide(data.guide);
+      onStudyGuideGenerated(data.guide);
       setGenerationsUsed(data.usage.generationsUsed);
       setLimit(data.usage.limit);
     },
@@ -47,7 +52,7 @@ export default function StudyGuideTab({
     error instanceof Error ? error.message : "Failed to generate study guide.";
 
   // ─── Empty State ─────────────────────────────────────────────────
-  if (!guide && !isPending && !error) {
+  if (!studyGuide && !isPending && !error) {
     return (
       <div className="bg-card border border-border rounded-xl p-6 md:p-8 min-h-100">
         <div className="text-center py-16">
@@ -121,7 +126,7 @@ export default function StudyGuideTab({
   }
 
   // ─── Error State ─────────────────────────────────────────────────
-  if (error && !guide) {
+  if (error && !studyGuide) {
     return (
       <div className="bg-card border border-border rounded-xl p-6 md:p-8 min-h-100">
         <div className="text-center py-16">
@@ -145,7 +150,7 @@ export default function StudyGuideTab({
   }
 
   // ─── Guide Content ───────────────────────────────────────────────
-  if (!guide) return null;
+  if (!studyGuide) return null;
 
   return (
     <motion.div
@@ -170,7 +175,9 @@ export default function StudyGuideTab({
             disabled={isPending}
             className="flex items-center gap-1.5 text-sm font-medium text-muted-foreground hover:text-foreground bg-muted/50 hover:bg-muted px-3 py-1.5 rounded-lg transition-colors disabled:opacity-50"
           >
-            <RefreshCw className={`w-3.5 h-3.5 ${isPending ? "animate-spin" : ""}`} />
+            <RefreshCw
+              className={`w-3.5 h-3.5 ${isPending ? "animate-spin" : ""}`}
+            />
             Regenerate
           </button>
         </div>
@@ -185,7 +192,7 @@ export default function StudyGuideTab({
           Overview
         </h3>
         <div className="text-muted-foreground leading-relaxed whitespace-pre-line pl-10">
-          {guide.overview}
+          {studyGuide.overview}
         </div>
       </section>
 
@@ -198,7 +205,7 @@ export default function StudyGuideTab({
           Key Concepts
         </h3>
         <div className="grid gap-3 pl-10">
-          {guide.keyConcepts.map((concept, idx) => (
+          {studyGuide.keyConcepts.map((concept, idx) => (
             <motion.div
               key={idx}
               initial={{ opacity: 0, x: -10 }}
@@ -226,7 +233,7 @@ export default function StudyGuideTab({
           Important Facts
         </h3>
         <ul className="space-y-2 pl-10">
-          {guide.importantFacts.map((fact, idx) => (
+          {studyGuide.importantFacts.map((fact, idx) => (
             <motion.li
               key={idx}
               initial={{ opacity: 0 }}
@@ -250,7 +257,7 @@ export default function StudyGuideTab({
           Common Misconceptions
         </h3>
         <div className="space-y-3 pl-10">
-          {guide.commonMisconceptions.map((item, idx) => (
+          {studyGuide.commonMisconceptions.map((item, idx) => (
             <motion.div
               key={idx}
               initial={{ opacity: 0, x: -10 }}
@@ -262,13 +269,17 @@ export default function StudyGuideTab({
                 <span className="text-red-500 font-semibold text-sm shrink-0 mt-0.5">
                   ✗ Myth:
                 </span>
-                <span className="text-muted-foreground text-sm">{item.myth}</span>
+                <span className="text-muted-foreground text-sm">
+                  {item.myth}
+                </span>
               </div>
               <div className="flex items-start gap-2">
                 <span className="text-emerald-500 font-semibold text-sm shrink-0 mt-0.5">
                   ✓ Reality:
                 </span>
-                <span className="text-muted-foreground text-sm">{item.reality}</span>
+                <span className="text-muted-foreground text-sm">
+                  {item.reality}
+                </span>
               </div>
             </motion.div>
           ))}
@@ -283,8 +294,10 @@ export default function StudyGuideTab({
           </span>
           Summary
         </h3>
-        <div className="bg-gradient-to-br from-blue-500/5 to-purple-500/5 border border-blue-500/10 rounded-xl p-5 pl-10">
-          <p className="text-muted-foreground leading-relaxed">{guide.summary}</p>
+        <div className="bg-linear-to-br from-blue-500/5 to-purple-500/5 border border-blue-500/10 rounded-xl p-5 pl-10">
+          <p className="text-muted-foreground leading-relaxed">
+            {studyGuide.summary}
+          </p>
         </div>
       </section>
     </motion.div>

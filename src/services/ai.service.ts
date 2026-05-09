@@ -56,13 +56,18 @@ export const aiService = {
   },
 
   /**
-   * Generate a quiz for a topic.
+   * Generate a quiz for a topic, using the study guide as context.
    */
-  generateQuiz: async (topicId: string, difficulty: string, questionCount = 10) => {
+  generateQuiz: async (
+    topicId: string,
+    difficulty: string,
+    questionCount = 10,
+    studyGuideContext?: StudyGuideData | null
+  ) => {
     const { data } = await apiClient.post<{
       success: boolean;
       data: { quiz: QuizData; usage: UsageInfo };
-    }>("/ai/quiz", { topicId, difficulty, questionCount });
+    }>("/ai/quiz", { topicId, difficulty, questionCount, studyGuideContext: studyGuideContext ?? undefined });
     return data.data;
   },
 

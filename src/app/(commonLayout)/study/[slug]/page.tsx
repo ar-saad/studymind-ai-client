@@ -3,8 +3,13 @@
 import { useParams } from "next/navigation";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { topicService } from "@/services/topic.service";
-import { aiService } from "@/services/ai.service";
-import { useState, useEffect } from "react";
+import {
+  aiService,
+  StudyGuideData,
+  QuizQuestion,
+  ChatMessage,
+} from "@/services/ai.service";
+import { useState, useEffect, useCallback } from "react";
 import { motion } from "framer-motion";
 import Link from "next/link";
 import {
@@ -38,6 +43,15 @@ export default function StudySessionPage() {
   const { slug } = useParams<{ slug: string }>();
   const [activeTab, setActiveTab] = useState<string>("guide");
   const [sessionCreated, setSessionCreated] = useState(false);
+
+  // ─── Lifted State: Study Guide ────────────────────────────────────
+  const [studyGuide, setStudyGuide] = useState<StudyGuideData | null>(null);
+
+  // ─── Lifted State: Quiz ───────────────────────────────────────────
+  const [quizQuestions, setQuizQuestions] = useState<QuizQuestion[]>([]);
+
+  // ─── Lifted State: Chat Messages ──────────────────────────────────
+  const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
 
   // Fetch topic data
   const { data, isLoading } = useQuery({
@@ -76,6 +90,20 @@ export default function StudySessionPage() {
   const relatedTopics = relatedData?.data?.filter(
     (t: any) => t.id !== topic?.id
   )?.slice(0, 4);
+
+  // ─── Callbacks for child components ───────────────────────────────
+
+  const handleStudyGuideGenerated = useCallback((guide: StudyGuideData) => {
+    setStudyGuide(guide);
+  }, []);
+
+  const handleQuizGenerated = useCallback((questions: QuizQuestion[]) => {
+    setQuizQuestions(questions);
+  }, []);
+
+  const handleChatMessagesUpdate = useCallback((messages: ChatMessage[]) => {
+    setChatMessages(messages);
+  }, []);
 
   if (isLoading) {
     return (
@@ -139,37 +167,46 @@ export default function StudySessionPage() {
           ))}
         </div>
 
-        {/* Tab Content */}
-        <motion.div
-          key={activeTab}
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.2 }}
+        {/* Tab Content — all tabs are always mounted, hidden via CSS */}
+        <div
+          className={activeTab === "guide" ? "" : "hidden"}
+          aria-hidden={activeTab !== "guide"}
         >
-          {activeTab === "guide" && (
-            <StudyGuideTab
-              topicId={topic.id}
-              topicTitle={topic.title}
-              difficulty={topic.difficulty}
-            />
-          )}
+          <StudyGuideTab
+            topicId={topic.id}
+            topicTitle={topic.title}
+            difficulty={topic.difficulty}
+            studyGuide={studyGuide}
+            onStudyGuideGenerated={handleStudyGuideGenerated}
+          />
+        </div>
 
-          {activeTab === "quiz" && (
-            <QuizTab
-              topicId={topic.id}
-              topicTitle={topic.title}
-              difficulty={topic.difficulty}
-            />
-          )}
+        <div
+          className={activeTab === "quiz" ? "" : "hidden"}
+          aria-hidden={activeTab !== "quiz"}
+        >
+          <QuizTab
+            topicId={topic.id}
+            topicTitle={topic.title}
+            difficulty={topic.difficulty}
+            studyGuide={studyGuide}
+            quizQuestions={quizQuestions}
+            onQuizGenerated={handleQuizGenerated}
+          />
+        </div>
 
-          {activeTab === "chat" && (
-            <ChatTab
-              topicId={topic.id}
-              topicTitle={topic.title}
-              difficulty={topic.difficulty}
-            />
-          )}
-        </motion.div>
+        <div
+          className={activeTab === "chat" ? "" : "hidden"}
+          aria-hidden={activeTab !== "chat"}
+        >
+          <ChatTab
+            topicId={topic.id}
+            topicTitle={topic.title}
+            difficulty={topic.difficulty}
+            chatMessages={chatMessages}
+            onChatMessagesUpdate={handleChatMessagesUpdate}
+          />
+        </div>
 
         {/* What to Study Next Section */}
         {relatedTopics && relatedTopics.length > 0 && (

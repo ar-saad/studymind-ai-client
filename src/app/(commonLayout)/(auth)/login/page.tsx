@@ -34,7 +34,6 @@ export default function LoginPage() {
       return data;
     },
     onSuccess: (data) => {
-      console.log(data);
       if ((data?.user as { role?: string })?.role?.toLowerCase() === "admin") {
         router.push("/admin");
       } else {
