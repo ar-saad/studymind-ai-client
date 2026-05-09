@@ -35,7 +35,7 @@ export default function ChatTab({
   const [limitReached, setLimitReached] = useState(false);
   const [generationsUsed, setGenerationsUsed] = useState(0);
   const [limit, setLimit] = useState<number | string>("...");
-  const messagesEndRef = useRef<HTMLDivElement>(null);
+  const messagesContainerRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
   // Fetch initial usage stats
@@ -88,9 +88,12 @@ export default function ChatTab({
     },
   });
 
-  // Auto-scroll to bottom
+  // Auto-scroll to bottom (within the chat container only, not the whole page)
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    const container = messagesContainerRef.current;
+    if (container) {
+      container.scrollTo({ top: container.scrollHeight, behavior: "smooth" });
+    }
   }, [chatMessages, isPending]);
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -217,7 +220,7 @@ export default function ChatTab({
       </div>
 
       {/* Messages */}
-      <div className="flex-1 overflow-y-auto p-4 space-y-4">
+      <div ref={messagesContainerRef} className="flex-1 overflow-y-auto p-4 space-y-4">
         <AnimatePresence initial={false}>
           {chatMessages.map((msg, idx) => (
             <motion.div
@@ -242,7 +245,14 @@ export default function ChatTab({
                     : "bg-muted/50 text-foreground border border-border/50 rounded-bl-md"
                 }`}
               >
-                <p className="whitespace-pre-wrap">{msg.content}</p>
+                <p className="whitespace-pre-wrap">
+                  {msg.content.split(/(\*\*.*?\*\*)/g).map((part, i) => {
+                    if (part.startsWith("**") && part.endsWith("**") && part.length >= 4) {
+                      return <strong key={i}>{part.slice(2, -2)}</strong>;
+                    }
+                    return part;
+                  })}
+                </p>
               </div>
 
               {msg.role === "user" && (
@@ -274,7 +284,7 @@ export default function ChatTab({
           </motion.div>
         )}
 
-        <div ref={messagesEndRef} />
+
       </div>
 
       {/* Input area */}

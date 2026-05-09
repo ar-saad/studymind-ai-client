@@ -9,7 +9,7 @@ import {
   QuizQuestion,
   ChatMessage,
 } from "@/services/ai.service";
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { motion } from "framer-motion";
 import Link from "next/link";
 import {
@@ -42,7 +42,7 @@ const tabs = [
 export default function StudySessionPage() {
   const { slug } = useParams<{ slug: string }>();
   const [activeTab, setActiveTab] = useState<string>("guide");
-  const [sessionCreated, setSessionCreated] = useState(false);
+  const sessionCreatedRef = useRef(false);
 
   // ─── Lifted State: Study Guide ────────────────────────────────────
   const [studyGuide, setStudyGuide] = useState<StudyGuideData | null>(null);
@@ -65,15 +65,14 @@ export default function StudySessionPage() {
   // Create study session on page load
   const { mutate: createSession } = useMutation({
     mutationFn: (topicId: string) => aiService.createStudySession(topicId),
-    onSuccess: () => setSessionCreated(true),
-    onError: () => setSessionCreated(true), // Don't block the UI on error
   });
 
   useEffect(() => {
-    if (topic?.id && !sessionCreated) {
+    if (topic?.id && !sessionCreatedRef.current) {
+      sessionCreatedRef.current = true;
       createSession(topic.id);
     }
-  }, [topic?.id, sessionCreated, createSession]);
+  }, [topic?.id]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Fetch related topics ("What to Study Next")
   const { data: relatedData } = useQuery({
