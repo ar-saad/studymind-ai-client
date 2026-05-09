@@ -93,7 +93,9 @@ const MockupStepOne = () => {
         <div className="w-2.5 h-2.5 rounded-full bg-red-400" />
         <div className="w-2.5 h-2.5 rounded-full bg-yellow-400" />
         <div className="w-2.5 h-2.5 rounded-full bg-green-400" />
-        <span className="text-[10px] text-slate-400 ml-1.5 font-mono">studymind.ai/new-topic</span>
+        <span className="text-[10px] text-slate-400 ml-1.5 font-mono">
+          studymind.ai/new-topic
+        </span>
       </div>
 
       <div className="space-y-3.5">
@@ -135,7 +137,7 @@ const MockupStepOne = () => {
         <motion.div
           animate={{ scale: [1, 1.02, 1] }}
           transition={{ repeat: Infinity, duration: 2.5, ease: "easeInOut" }}
-          className="w-full py-2 bg-gradient-to-r from-blue-500 to-indigo-600 text-white rounded-xl text-center text-[11px] font-bold shadow-md shadow-blue-500/10 cursor-pointer flex items-center justify-center gap-1.5"
+          className="w-full py-2 bg-linear-to-r from-blue-500 to-indigo-600 text-white rounded-xl text-center text-[11px] font-bold shadow-md shadow-blue-500/10 cursor-pointer flex items-center justify-center gap-1.5"
         >
           <Sparkles className="w-3 h-3" />
           Generate Study Guide
@@ -148,11 +150,13 @@ const MockupStepOne = () => {
 // Mockup Component for Step 2
 const MockupStepTwo = () => {
   return (
-    <div className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200/60 dark:border-slate-800/80 rounded-2xl p-4 md:p-5 shadow-sm text-left font-sans flex flex-col gap-2.5 h-[210px] overflow-hidden relative">
+    <div className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200/60 dark:border-slate-800/80 rounded-2xl p-4 md:p-5 shadow-sm text-left font-sans flex flex-col gap-2.5 h-52.5 overflow-hidden relative">
       <div className="flex items-center justify-between border-b border-slate-200/60 dark:border-slate-800/80 pb-2 shrink-0">
         <div className="flex items-center gap-1.5">
           <BookOpen className="w-3.5 h-3.5 text-indigo-500" />
-          <span className="text-[10px] font-bold text-slate-800 dark:text-slate-100">Study Guide: Space Basics</span>
+          <span className="text-[10px] font-bold text-slate-800 dark:text-slate-100">
+            Study Guide: Space Basics
+          </span>
         </div>
         <div className="px-1.5 py-0.5 rounded bg-emerald-500/10 text-emerald-500 text-[8px] font-bold uppercase">
           Easy Level
@@ -162,9 +166,12 @@ const MockupStepTwo = () => {
       <div className="flex gap-2.5 grow overflow-hidden">
         {/* Left Side: Study Guide */}
         <div className="w-[55%] space-y-2 text-[10px] leading-normal text-slate-600 dark:text-slate-300">
-          <h4 className="font-bold text-slate-800 dark:text-white text-[11px]">🌌 Star Death & Collapse</h4>
+          <h4 className="font-bold text-slate-800 dark:text-white text-[11px]">
+            🌌 Star Death & Collapse
+          </h4>
           <p className="bg-white dark:bg-slate-950 p-2 rounded-lg border border-slate-200/60 dark:border-slate-800/80 shadow-2xs font-medium">
-            When an extremely heavy star runs out of fuel, it collapses. Its matter gets packed into an incredibly tiny space.
+            When an extremely heavy star runs out of fuel, it collapses. Its
+            matter gets packed into an incredibly tiny space.
           </p>
           <div className="h-1.5 bg-slate-200 dark:bg-slate-800 rounded w-5/6 animate-pulse" />
           <div className="h-1.5 bg-slate-200 dark:bg-slate-800 rounded w-4/5 animate-pulse" />
@@ -184,7 +191,8 @@ const MockupStepTwo = () => {
             <div className="flex items-center gap-0.5 mb-0.5 font-bold">
               <span>🤖 AI Doubt Solver</span>
             </div>
-            Imagine squeezing an elephant into a tiny grain of sand! That is how packed it is.
+            Imagine squeezing an elephant into a tiny grain of sand! That is how
+            packed it is.
           </motion.div>
         </div>
       </div>
@@ -199,7 +207,9 @@ const MockupStepThree = () => {
       <div className="flex items-center justify-between border-b border-slate-200/60 dark:border-slate-800/80 pb-2">
         <div className="flex items-center gap-1.5">
           <PenTool className="w-3.5 h-3.5 text-teal-500" />
-          <span className="text-[10px] font-bold text-slate-800 dark:text-slate-100">Practice Quiz</span>
+          <span className="text-[10px] font-bold text-slate-800 dark:text-slate-100">
+            Practice Quiz
+          </span>
         </div>
         <div className="flex items-center gap-0.5 text-teal-500 font-bold text-[10px]">
           <Trophy className="w-3 h-3 animate-bounce" />
@@ -228,7 +238,7 @@ const MockupStepThree = () => {
           >
             <span>B. It forms a Black Hole</span>
             <div className="w-3.5 h-3.5 rounded-full bg-emerald-500 flex items-center justify-center text-white shrink-0">
-              <Check className="w-2.5 h-2.5 stroke-[4]" />
+              <Check className="w-2.5 h-2.5 stroke-4" />
             </div>
           </motion.div>
         </div>
@@ -246,7 +256,7 @@ const MockupStepThree = () => {
               initial={{ width: "20%" }}
               animate={{ width: "92%" }}
               transition={{ duration: 1.5, ease: "easeOut" }}
-              className="h-full bg-gradient-to-r from-teal-500 to-emerald-500"
+              className="h-full bg-linear-to-r from-teal-500 to-emerald-500"
             />
           </div>
         </div>
@@ -257,7 +267,10 @@ const MockupStepThree = () => {
 
 export const Features = () => {
   return (
-    <section id="how-it-works" className="py-24 bg-slate-50 dark:bg-slate-900/50">
+    <section
+      id="how-it-works"
+      className="py-24 bg-slate-50 dark:bg-slate-900/50"
+    >
       <div className="container mx-auto px-4 md:px-8 max-w-7xl">
         {/* How it Works Header */}
         <div className="text-center mb-20">
@@ -265,8 +278,9 @@ export const Features = () => {
             How It Works
           </h2>
           <p className="text-slate-600 dark:text-slate-400 max-w-2xl mx-auto text-lg">
-            Mastering any subject has never been this simple. Our platform translates
-            complex academic files and ideas into fun, structured daily steps.
+            Mastering any subject has never been this simple. Our platform
+            translates complex academic files and ideas into fun, structured
+            daily steps.
           </p>
         </div>
 
@@ -282,12 +296,14 @@ export const Features = () => {
               className="flex flex-col bg-white dark:bg-slate-950 rounded-3xl border border-slate-100 dark:border-slate-900 p-6 md:p-8 hover:shadow-[0_20px_50px_rgba(59,130,246,0.06)] dark:hover:shadow-[0_20px_50px_rgba(59,130,246,0.12)] hover:border-blue-500/20 dark:hover:border-blue-500/30 transition-all duration-500 group relative overflow-hidden"
             >
               {/* Card Top Border Accent */}
-              <div className={`absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r ${step.color}`} />
+              <div
+                className={`absolute top-0 left-0 right-0 h-1.5 bg-linear-to-r ${step.color}`}
+              />
 
               {/* Step Badge & Large Number */}
               <div className="flex items-center justify-between mb-6">
                 <span
-                  className={`text-xs font-bold tracking-widest uppercase bg-gradient-to-r ${step.color} bg-clip-text text-transparent`}
+                  className={`text-xs font-bold tracking-widest uppercase bg-linear-to-r ${step.color} bg-clip-text text-transparent`}
                 >
                   {step.badge}
                 </span>

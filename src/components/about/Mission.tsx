@@ -164,7 +164,7 @@ export const Mission = () => {
                 transition={{ duration: 0.5, delay: index * 0.1 }}
                 className="relative group p-8 bg-white dark:bg-slate-800/40 rounded-3xl border border-slate-100 dark:border-slate-800 shadow-xs hover:border-blue-500/20 dark:hover:border-blue-500/20 hover:shadow-xl hover:shadow-blue-500/5 transition-all text-center"
               >
-                <div className="absolute inset-0 bg-gradient-to-r from-blue-500/5 to-indigo-500/5 rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity" />
+                <div className="absolute inset-0 bg-linear-to-r from-blue-500/5 to-indigo-500/5 rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity" />
                 <h3 className="text-4xl md:text-5xl font-extrabold text-blue-600 dark:text-blue-400 mb-2 tracking-tight">
                   {stat.number}
                 </h3>
