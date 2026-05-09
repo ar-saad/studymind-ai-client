@@ -1,15 +1,7 @@
 import axios from "axios";
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
-
-/**
- * Pre-configured Axios instance for all API requests.
- * - Includes credentials (cookies) for Better Auth session handling
- * - Sets JSON content type
- * - Handles response errors with a consistent structure
- */
 const apiClient = axios.create({
-  baseURL: `${API_BASE_URL}/api`,
+  baseURL: typeof window !== "undefined" ? "/api" : `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"}/api`,
   withCredentials: true,
   headers: {
     "Content-Type": "application/json",

@@ -3,7 +3,7 @@
 import { useForm } from "@tanstack/react-form";
 import { useMutation } from "@tanstack/react-query";
 import { signIn } from "@/lib/auth-client";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { AuthLayout } from "@/components/auth/AuthLayout";
 import { Button } from "@/components/ui/button";
@@ -19,6 +19,8 @@ const loginSchema = z.object({
 
 export default function LoginPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const callbackUrl = searchParams.get("callbackUrl");
 
   const mutation = useMutation({
     mutationFn: async (values: z.infer<typeof loginSchema>) => {
@@ -34,7 +36,9 @@ export default function LoginPage() {
       return data;
     },
     onSuccess: (data) => {
-      if ((data?.user as { role?: string })?.role?.toLowerCase() === "admin") {
+      if (callbackUrl) {
+        router.push(callbackUrl);
+      } else if ((data?.user as { role?: string })?.role?.toLowerCase() === "admin") {
         router.push("/admin");
       } else {
         router.push("/dashboard");
