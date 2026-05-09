@@ -18,7 +18,9 @@ import {
   AlertTriangle,
   Sparkles,
   BookOpen,
+  Star,
 } from "lucide-react";
+import { ReviewDialog } from "./ReviewDialog";
 
 interface QuizTabProps {
   topicId: string;
@@ -62,6 +64,7 @@ export default function QuizTab({
   const [generationsUsed, setGenerationsUsed] = useState(0);
   const [limit, setLimit] = useState<number | string>("...");
   const timerRef = useRef<NodeJS.Timeout | null>(null);
+  const [isReviewOpen, setIsReviewOpen] = useState(false);
 
   // Generate quiz mutation — pass study guide context to backend
   const {
@@ -366,6 +369,13 @@ export default function QuizTab({
               Review All
             </button>
             <button
+              onClick={() => setIsReviewOpen(true)}
+              className="flex items-center gap-2 bg-amber-500 hover:bg-amber-600 text-white font-medium px-5 py-2.5 rounded-xl transition-colors shadow-sm"
+            >
+              <Star className="w-4 h-4 fill-current" />
+              Leave a Review
+            </button>
+            <button
               onClick={() => {
                 setQuizState("idle");
                 setQuestions([]);
@@ -649,6 +659,12 @@ export default function QuizTab({
           )}
         </motion.div>
       </AnimatePresence>
+      <ReviewDialog
+        isOpen={isReviewOpen}
+        onClose={() => setIsReviewOpen(false)}
+        topicId={topicId}
+        topicTitle={topicTitle}
+      />
     </motion.div>
   );
 }

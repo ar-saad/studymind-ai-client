@@ -104,6 +104,17 @@ export const userService = {
     return data;
   },
 
+  uploadImage: async (file: File) => {
+    const formData = new FormData();
+    formData.append("image", file);
+    const { data } = await apiClient.post<{ data: { imageUrl: string } }>("/user/upload", formData, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    });
+    return data.data;
+  },
+
   deleteAccount: async () => {
     const { data } = await apiClient.delete("/user/account");
     return data;

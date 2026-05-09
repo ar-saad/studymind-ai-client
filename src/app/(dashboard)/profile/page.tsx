@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { authClient } from "@/lib/auth-client";
 import { User, Upload, Loader2 } from "lucide-react";
+import { userService } from "@/services/user.service";
 
 export default function ProfilePage() {
   const { user } = useUser();
@@ -15,7 +16,7 @@ export default function ProfilePage() {
   const [isSaving, setIsSaving] = useState(false);
   const [message, setMessage] = useState({ text: "", type: "" });
 
-  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
       if (file.size > 2 * 1024 * 1024) {
@@ -23,12 +24,17 @@ export default function ProfilePage() {
         return;
       }
       setIsUploading(true);
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setImage(reader.result as string);
+      setMessage({ text: "", type: "" });
+      try {
+        const data = await userService.uploadImage(file);
+        setImage(data.imageUrl);
+        setMessage({ text: "Image uploaded successfully!", type: "success" });
+      } catch (err: any) {
+        const errorMsg = err.response?.data?.message || err.message || "Failed to upload image";
+        setMessage({ text: errorMsg, type: "error" });
+      } finally {
         setIsUploading(false);
-      };
-      reader.readAsDataURL(file);
+      }
     }
   };
 
