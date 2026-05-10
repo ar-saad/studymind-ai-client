@@ -1,8 +1,10 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { aiService, QuizQuestion, StudyGuideData } from "@/services/ai.service";
+import { reviewService } from "@/services/review.service";
+import { useUser } from "@/providers/UserProvider";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Brain,
@@ -65,6 +67,17 @@ export default function QuizTab({
   const [limit, setLimit] = useState<number | string>("...");
   const timerRef = useRef<NodeJS.Timeout | null>(null);
   const [isReviewOpen, setIsReviewOpen] = useState(false);
+  
+  const { user } = useUser();
+
+  // Fetch user's review for this topic
+  const { data: reviewsResponse, refetch: refetchReview } = useQuery({
+    queryKey: ["topic-review", topicId, user?.id],
+    queryFn: () => reviewService.getReviews({ topicId, userId: user?.id }),
+    enabled: !!user?.id,
+  });
+
+  const existingReview = reviewsResponse?.data?.[0] || null;
 
   // Generate quiz mutation — pass study guide context to backend
   const {
@@ -368,13 +381,25 @@ export default function QuizTab({
               <ListChecks className="w-4 h-4" />
               Review All
             </button>
-            <button
-              onClick={() => setIsReviewOpen(true)}
-              className="flex items-center gap-2 bg-amber-500 hover:bg-amber-600 text-white font-medium px-5 py-2.5 rounded-xl transition-colors shadow-sm"
-            >
-              <Star className="w-4 h-4 fill-current" />
-              Leave a Review
-            </button>
+            
+            {existingReview ? (
+              <button
+                onClick={() => setIsReviewOpen(true)}
+                className="flex items-center gap-2 bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20 hover:bg-amber-500/20 font-medium px-5 py-2.5 rounded-xl transition-colors"
+              >
+                <Star className="w-4 h-4 fill-current" />
+                ⭐ {existingReview.rating}/5
+              </button>
+            ) : (
+              <button
+                onClick={() => setIsReviewOpen(true)}
+                className="flex items-center gap-2 bg-amber-500 hover:bg-amber-600 text-white font-medium px-5 py-2.5 rounded-xl transition-colors shadow-sm"
+              >
+                <Star className="w-4 h-4 fill-current" />
+                Leave a Review
+              </button>
+            )}
+
             <button
               onClick={() => {
                 setQuizState("idle");
@@ -389,6 +414,16 @@ export default function QuizTab({
             </button>
           </div>
         </div>
+        <ReviewDialog
+          isOpen={isReviewOpen}
+          onClose={() => setIsReviewOpen(false)}
+          topicId={topicId}
+          topicTitle={topicTitle}
+          existingReview={existingReview}
+          onSuccess={() => {
+            refetchReview();
+          }}
+        />
       </motion.div>
     );
   }
@@ -659,12 +694,6 @@ export default function QuizTab({
           )}
         </motion.div>
       </AnimatePresence>
-      <ReviewDialog
-        isOpen={isReviewOpen}
-        onClose={() => setIsReviewOpen(false)}
-        topicId={topicId}
-        topicTitle={topicTitle}
-      />
     </motion.div>
   );
 }
