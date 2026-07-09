@@ -40,7 +40,9 @@ function LoginForm() {
     onSuccess: (data) => {
       if (callbackUrl) {
         router.push(callbackUrl);
-      } else if ((data?.user as { role?: string })?.role?.toLowerCase() === "admin") {
+      } else if (
+        (data?.user as { role?: string })?.role?.toLowerCase() === "admin"
+      ) {
         router.push("/admin");
       } else {
         router.push("/explore");
@@ -93,7 +95,7 @@ function LoginForm() {
         <form.Field
           name="email"
           children={(field) => (
-            <div className="space-y-2">
+            <div className="flex flex-col gap-2">
               <label className="text-sm font-medium text-foreground/80 ml-1">
                 Email Address
               </label>
@@ -130,7 +132,7 @@ function LoginForm() {
         <form.Field
           name="password"
           children={(field) => (
-            <div className="space-y-2">
+            <div className="flex flex-col gap-2">
               <div className="flex justify-between items-center mb-1 px-1">
                 <label className="text-sm font-medium text-foreground/80">
                   Password
@@ -260,7 +262,13 @@ export default function LoginPage() {
       footerLinkText="Sign up"
       footerLinkHref="/register"
     >
-      <Suspense fallback={<div className="flex justify-center py-8"><Loader2 className="animate-spin text-blue-500" /></div>}>
+      <Suspense
+        fallback={
+          <div className="flex justify-center py-8">
+            <Loader2 className="animate-spin text-blue-500" />
+          </div>
+        }
+      >
         <LoginForm />
       </Suspense>
     </AuthLayout>

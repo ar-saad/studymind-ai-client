@@ -10,7 +10,15 @@ import { Button } from "@/components/ui/button";
 
 import { z } from "zod";
 import { motion, AnimatePresence } from "framer-motion";
-import { Loader2, Mail, Lock, User, AlertCircle, Eye, EyeOff } from "lucide-react";
+import {
+  Loader2,
+  Mail,
+  Lock,
+  User,
+  AlertCircle,
+  Eye,
+  EyeOff,
+} from "lucide-react";
 
 const registerSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters"),
@@ -42,7 +50,9 @@ function RegisterForm() {
     onSuccess: (data) => {
       if (callbackUrl) {
         router.push(callbackUrl);
-      } else if ((data?.user as { role?: string })?.role?.toLowerCase() === "admin") {
+      } else if (
+        (data?.user as { role?: string })?.role?.toLowerCase() === "admin"
+      ) {
         router.push("/admin");
       } else {
         router.push("/explore");
@@ -96,7 +106,7 @@ function RegisterForm() {
         <form.Field
           name="name"
           children={(field) => (
-            <div className="space-y-2">
+            <div className="flex flex-col gap-2">
               <label className="text-sm font-medium text-foreground/80 ml-1">
                 Full Name
               </label>
@@ -133,7 +143,7 @@ function RegisterForm() {
         <form.Field
           name="email"
           children={(field) => (
-            <div className="space-y-2">
+            <div className="flex flex-col gap-2">
               <label className="text-sm font-medium text-foreground/80 ml-1">
                 Email Address
               </label>
@@ -170,7 +180,7 @@ function RegisterForm() {
         <form.Field
           name="password"
           children={(field) => (
-            <div className="space-y-2">
+            <div className="flex flex-col gap-2">
               <label className="text-sm font-medium text-foreground/80 ml-1">
                 Password
               </label>
@@ -245,7 +255,13 @@ export default function RegisterPage() {
       footerLinkText="Sign in"
       footerLinkHref="/login"
     >
-      <Suspense fallback={<div className="flex justify-center py-8"><Loader2 className="animate-spin text-blue-500" /></div>}>
+      <Suspense
+        fallback={
+          <div className="flex justify-center py-8">
+            <Loader2 className="animate-spin text-blue-500" />
+          </div>
+        }
+      >
         <RegisterForm />
       </Suspense>
     </AuthLayout>

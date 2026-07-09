@@ -22,9 +22,9 @@ export function AuthLayout({
   footerLinkHref,
 }: AuthLayoutProps) {
   return (
-    <div className="min-h-screen w-full flex items-center justify-center bg-background relative overflow-hidden font-sans">
+    <div className="min-h-screen w-full flex items-center justify-center bg-background relative font-sans px-4 py-28 md:py-32">
       {/* Background decorative elements */}
-      <div className="absolute top-0 left-0 w-full h-full overflow-hidden z-0 pointer-events-none">
+      <div className="absolute inset-0 overflow-hidden z-0 pointer-events-none">
         <div className="absolute -top-[20%] -left-[10%] w-[50%] h-[50%] bg-blue-600/10 blur-[120px] rounded-full animate-pulse" />
         <div className="absolute -bottom-[20%] -right-[10%] w-[50%] h-[50%] bg-purple-600/10 blur-[120px] rounded-full animate-pulse" style={{ animationDelay: '2s' }} />
       </div>
@@ -33,7 +33,7 @@ export function AuthLayout({
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5, ease: "easeOut" }}
-        className="w-full max-w-md relative z-10 px-4"
+        className="w-full max-w-md relative z-10"
       >
         <div className="bg-card/50 backdrop-blur-xl border border-border p-8 rounded-3xl shadow-2xl">
           <div className="text-center mb-10">
